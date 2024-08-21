@@ -1,10 +1,16 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia';
+import PiniaPersistedState from 'pinia-plugin-persistedstate';
 import App from './App.vue'
 import router from './router';
 
 import { IonicVue } from '@ionic/vue';
 
+const pinia = createPinia();
+pinia.use(PiniaPersistedState);
+
 /* Core CSS required for Ionic components to work properly */
+import './style.css';
 import '@ionic/vue/css/core.css';
 
 /* Basic CSS for apps built with Ionic */
@@ -35,6 +41,7 @@ import '@ionic/vue/css/palettes/dark.system.css';
 import './theme/variables.css';
 
 const app = createApp(App)
+.use(pinia)
   .use(IonicVue)
   .use(router);
 

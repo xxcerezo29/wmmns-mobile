@@ -52,6 +52,11 @@ jobs:
                 cd android
                 ./gradlew assembleRelease
 
+            - name: List APK Files
+              run: |
+                  cd android/app/build/outputs/apk/release
+                  ls -l
+
             - name: Upload APK
               uses: actions/upload-artifact@v3
               with:

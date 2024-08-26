@@ -38,6 +38,9 @@ jobs:
             - name: Sync Capacitor
               run: npx cap sync
 
+            - name: Install Java 17
+              run: sudo apt-get install openjdk-17-jdk
+
             - name: Fix Gradle Permissions
               run: chmod +x android/gradlew
                 

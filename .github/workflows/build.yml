@@ -47,6 +47,9 @@ jobs:
             - name: Fix Gradle Permissions
               run: chmod +x android/gradlew
 
+            - name: Print Base64 String Length
+              run: echo "${#${{ secrets.KEYSTORE_FILE }}"
+
             - name: Decode Keystore
               run: |
                 echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > my-release-key.keystore

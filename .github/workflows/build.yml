@@ -26,11 +26,21 @@ jobs:
             - name: Install Capacitor CLI
               run: npm install -g @capacitor/cli
 
-            - name: Sync Capacitor and add Android
+            - name: Remove existing Android platform
               run: |
-                npx cap sync
-                npx cap add android || true
+                if [ -d "android" ]; then
+                  rm -rf android
+                fi
 
+            - name: Add Android platform
+              run : npx cap add android
+
+            - name: Sync Capacitor
+              run: npx cap sync
+
+            - name: Fix Gradle Permissions
+              run: chmod +x android/gradlew
+                
             - name: Build Android
               run: |
                 cd android

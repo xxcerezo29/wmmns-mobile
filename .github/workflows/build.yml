@@ -1,0 +1,43 @@
+name: Build Ionic Vue for Android
+
+on:
+    release:
+      types: [published]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v3
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                node-version: '16'
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build Ionic Vue app
+              run: npm run build
+
+            - name: Install Capacitor CLI
+              run: npm install -g @capacitor/cli
+
+            - name: Sync Capacitor and add Android
+              run: |
+                npx cap sync
+                npx cap add android || true
+
+            - name: Build Android
+              run: |
+                cd android
+                ./gradlew aseembleRelease
+
+            - name: Upload APK
+              uses: actions/upload-artifact@v3
+              with:
+                name: android-apk
+                path: android/app/build/outputs/apk/release/app-release.apk

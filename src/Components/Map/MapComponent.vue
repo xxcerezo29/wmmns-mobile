@@ -9,7 +9,6 @@ import { onMounted, ref } from 'vue';
 const mapContainer = ref<HTMLElement | null>(null);
 
 import riderIconURL from '@/Assets/garbage-truck.png';
-import { information } from 'ionicons/icons';
 
 let map: L.Map | null = null;
 let marker: L.Marker | null = null;
@@ -49,18 +48,21 @@ const trackUserLocation = () => {
                 marker.setLatLng(latlng);
                 marker.bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
             } else {
-                marker = L.marker(latlng, { icon: riderIcon }).addTo(map)
-                    .bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
+                if(map)
+                    marker = L.marker(latlng, { icon: riderIcon }).addTo(map)
+                        .bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
             }
 
             if (circle) {
                 circle.setLatLng(latlng);
                 circle.setRadius(accuracy);
             } else {
-                circle = L.circle(latlng, accuracy).addTo(map);
+                if(map)
+                    circle = L.circle(latlng, accuracy).addTo(map);
             }
 
-            centerMapOnLocation(map, latlng);
+            if(map)
+                centerMapOnLocation(map, latlng);
 
             L.Routing.control({
                 waypoints: [

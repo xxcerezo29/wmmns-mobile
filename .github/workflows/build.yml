@@ -50,7 +50,7 @@ jobs:
             - name: Build Android
               run: |
                 cd android
-                ./gradlew aseembleRelease
+                ./gradlew assembleRelease
 
             - name: Upload APK
               uses: actions/upload-artifact@v3

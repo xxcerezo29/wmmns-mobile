@@ -5,23 +5,52 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/home'
+    redirect: '/auth'
   },
   {
     path: '/login',
-    component: () => import('../views/Auth/Login.vue'),
-    meta: { guest: true }
+    component: () => import('../layouts/GuestLayout.vue'),
+    meta: { guest: true },
+    children: [
+      {
+        path: '',
+        component: () => import('../views/Auth/Login.vue')
+      }
+    ]
+  },
+  {
+    path: '/auth',
+    component: () => import('../layouts/AuthLayout.vue'),
+    // meta: { requiresAuth: true }
+    children: [
+      {
+        path: '',
+        component: () => import('../views/HomePage.vue'),
+        // meta: { requiresAuth: true }
+      },
+      {
+        path: 'schedule',
+        component: () => import('../views/SchedulePage.vue'),
+        // meta: { requiresAuth: true }
+      },
+      {
+        path: 'route',
+        component: () => import('../views/RoutePage.vue'),
+        // meta: { requiresAuth: true }
+      }
+    ]
   },
   {
     path: '/register',
     component: () => import('../views/Auth/Register.vue'),
     meta: { guest: true}
   },
-  {
-    path: '/home',
-    component: () => import('../views/Home.vue'),
-    meta: { requiresAuth: true }
-  },
+  // {
+  //   path: '/home',
+  //   component: () => import('../views/Home.vue'),
+  //   // meta: { requiresAuth: true }
+  // },
+  
 ]
 
 const router = createRouter({

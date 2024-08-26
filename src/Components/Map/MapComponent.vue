@@ -1,0 +1,108 @@
+<script setup lang="ts">
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+import 'leaflet-routing-machine';
+import { onMounted, ref } from 'vue';
+
+const mapContainer = ref<HTMLElement | null>(null);
+
+import riderIconURL from '@/Assets/garbage-truck.png';
+import { information } from 'ionicons/icons';
+
+let map: L.Map | null = null;
+let marker: L.Marker | null = null;
+let circle: L.Circle | null = null;
+
+const initMap = () => {
+    if (mapContainer.value && !map) {
+        map = L.map(mapContainer.value).setView([16.6942, 121.5512], 13);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(map);
+
+    }
+}
+
+const riderIcon = L.icon({
+    iconUrl: riderIconURL,
+    iconSize: [50, 50],
+    iconAnchor: [25, 50],
+    popupAnchor: [0, -50],
+});
+
+const centerMapOnLocation = (map: L.Map, latlng: L.LatLng) => {
+    map.setView(latlng, map.getZoom(), { animate: true });
+}
+
+const trackUserLocation = () => {
+    if (!map) return;
+    const watchId = navigator.geolocation.watchPosition(
+        (position) => {
+            const latlng = L.latLng(position.coords.latitude, position.coords.longitude);
+            const accuracy = position.coords.accuracy / 2;
+
+            if (marker) {
+                marker.setLatLng(latlng);
+                marker.bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
+            } else {
+                marker = L.marker(latlng, { icon: riderIcon }).addTo(map)
+                    .bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
+            }
+
+            if (circle) {
+                circle.setLatLng(latlng);
+                circle.setRadius(accuracy);
+            } else {
+                circle = L.circle(latlng, accuracy).addTo(map);
+            }
+
+            centerMapOnLocation(map, latlng);
+
+            L.Routing.control({
+                waypoints: [
+                    latlng,
+                    L.latLng(16.7060, 121.5550)
+                ],
+                routeWhileDragging: true,
+                addWaypoints: false,
+                draggableWaypoints: false,
+                show: false,
+                createMarker: () => null
+            }).addTo(map);
+        },
+        (error) => {
+            console.log(error);
+            alert('Unable to retrieve your location.');
+        },
+        {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 10000,
+
+        }
+    );
+    return watchId;
+}
+
+onMounted(() => {
+    initMap();
+    const watchId = trackUserLocation();
+    onMounted(() => {
+        if(watchId){
+            navigator.geolocation.clearWatch(watchId);
+        }
+    })
+})
+</script>
+
+<template>
+    <div class="m-auto w-full max-h-96">
+        <div id="map" ref="mapContainer" style="height: 500px; width: 100%;" class="">
+
+        </div>
+    </div>
+</template>

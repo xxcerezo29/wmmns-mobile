@@ -4,8 +4,8 @@ import { FormData } from "./registration";
 
 export  const useAuthStore = defineStore('auth', {
     state: () => ({
-        user: null,
-        token: null,
+        user: '',
+        token: '',
         errors: {} as Record<string, string>
     }),
     actions: {
@@ -43,8 +43,8 @@ export  const useAuthStore = defineStore('auth', {
             }
           },
           logout() {
-            this.user = null;
-            this.token = null;
+            this.user = '';
+            this.token = '';
             localStorage.removeItem('token');
             delete api.defaults.headers.common['Authorization'];
           },
@@ -55,7 +55,8 @@ export  const useAuthStore = defineStore('auth', {
                     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
                     const response = await api.get('/user');
                     this.user = response.data;
-                    this.token = token;
+                    if(token)
+                      this.token = token;
                 } catch (error) {
                     this.logout();
                   }

@@ -1,5 +1,5 @@
 <template>
-    <ion-menu  swipeGesture="true" content-id="main-content" side="start" menuId="first">
+    <ion-menu  :swipeGesture="swipe" content-id="main-content" side="start" menuId="first">
         <ion-header>
             <ion-toolbar>
                 <ion-title>Menu</ion-title>
@@ -19,7 +19,9 @@
 import { useAuthStore } from '@/stores/auth';
 import router from '@/router';
 import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonButton } from '@ionic/vue';
+import { ref } from 'vue';
 
+const swipe = ref(true);
 
 const goTo = (path: string) => {
     router.push(path);

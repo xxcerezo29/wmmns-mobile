@@ -49,7 +49,7 @@ jobs:
 
             - name: Decode Keystore
               run: |
-                echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > my-release-key.keystore
+                echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > my-release-key.keystore
               shell: bash
 
             - name: Configure Signing in Gradle

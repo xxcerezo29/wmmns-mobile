@@ -46,6 +46,24 @@ jobs:
 
             - name: Fix Gradle Permissions
               run: chmod +x android/gradlew
+
+            - name: Decode Keystore
+              run: |
+                echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > my-release-key.keystore
+
+            - name: Configure Signing in Gradle
+              run: |
+                mkdir -p android/app/src/main/res
+                echo "android.signingConfigs.release {
+                  storeFile file('my-release-key.keystore')
+                  storePassword '${{ secrets.KEYSTORE_PASSWORD }}'
+                  keyAlias '${{ secrets.KEY_ALIAS }}'
+                  keyPassword '${{ secrets.KEY_PASSWORD }}'
+                }
+
+                android.buildTypes.release {
+                  signingConfig signingConfigs.release
+                }" > android/app/build.gradle
                 
             - name: Build Android
               run: |

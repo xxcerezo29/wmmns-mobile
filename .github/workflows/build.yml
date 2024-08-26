@@ -41,6 +41,9 @@ jobs:
             - name: Install Java 17
               run: sudo apt-get install openjdk-17-jdk
 
+            - name: Set JAVA_HOME
+              run: echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
+
             - name: Fix Gradle Permissions
               run: chmod +x android/gradlew
                 

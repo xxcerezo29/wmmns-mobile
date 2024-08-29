@@ -11,18 +11,19 @@
         <ion-content :fullscreen="true" >
             <div class="bg-gradient-to-t from-green-400 to-white-500 min-h-full">
                 <div class="py-4">
-                    <TruckListComponent />
+                    <TruckListComponent v-if="auth.type === 'resident'" />
                     <div class="p-4">
                         <div class="flex gap-2">
                             <MapPinIcon class="w-7" />
-                            <h1>Today Route</h1>
+                            <h1  v-if="auth.type === 'resident'">Today's Route</h1>
+                            <h1  v-else-if="auth.type === 'driver'">My Today's Route</h1>
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <div class="bg-green-400 p-4 rounded-xl">
+                        <div v-if="schedules?.length" class="flex flex-col gap-2">
+                            <div v-for="schedule in schedules" :key="schedule.id"  class="bg-green-400 p-4 rounded-xl">
                                 <div class="flex justify-between">
                                     <div>
                                         <MapIcon class="w-7" />
-                                        <h1>Route Name</h1>
+                                        <h1>{{schedule.route_name}}</h1>
                                     </div>
                                     <div class="dropdown dropdown-end">
                                         <div tabindex="0" role="button">
@@ -39,13 +40,16 @@
 
                                 </div>
                                 <div>
-                                    <span>Tr</span>
+                                    <span>Truck: {{ schedule.truck_plate}}</span>
                                 </div>
                                 <div>
-                                    <span>6:30 AM</span>
+                                    <span>{{formatTime(schedule.time)}}</span>
                                 </div>
                             </div>
 
+                        </div>
+                        <div v-else class="bg-gray-200 p-4 rounded-xl">
+                            <p>No schedules available for this day.</p>
                         </div>
 
                     </div>
@@ -58,7 +62,52 @@
 </template>
 <script setup lang="ts">
 import TruckListComponent from '@/Components/TruckListComponent.vue';
+import api from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
 import { Cog6ToothIcon, MapIcon, MapPinIcon } from '@heroicons/vue/24/outline';
 import { IonPage, IonHeader, IonToolbar, IonContent, IonTitle, IonButtons, IonMenuButton } from '@ionic/vue';
+import { onMounted, ref } from 'vue';
+
+interface schedule {
+    id: number;
+    barangay: string;
+    day: string;
+    truck_id: number;
+    route_id: number;
+    time: string;
+    truck_plate: string;
+    route_name: string;
+}
+
+const schedules = ref<Array<schedule>>();
+
+const auth = useAuthStore();
+
+
+onMounted(async () => {
+    try{
+        const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const today = new Date();
+        const day = days[today.getDay()];
+
+        const response = await api.get('/schedule/get-by-day/'+day);
+        schedules.value = response.data.schedules;
+    }catch(error: any){
+        if(error.response){
+            // s
+        }
+    }
+});
+
+const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes);
+    return new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    }).format(date);
+}
 
 </script>

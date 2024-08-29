@@ -33,7 +33,7 @@ const login = async () => {
             type: '',
             remember: false,
         }
-        router.push('/home');
+        router.push('/auth/');
     }
 }
 

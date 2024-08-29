@@ -4,11 +4,13 @@ import L from 'leaflet';
 
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet-routing-machine';
-import { onMounted, ref } from 'vue';
+import { Geolocation } from '@capacitor/geolocation';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const mapContainer = ref<HTMLElement | null>(null);
 
 import riderIconURL from '@/Assets/garbage-truck.png';
+import { Capacitor } from '@capacitor/core';
 
 let map: L.Map | null = null;
 let marker: L.Marker | null = null;
@@ -23,6 +25,12 @@ const initMap = () => {
                 '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map);
 
+        map.invalidateSize();
+
+        window.addEventListener('resize', () => {
+            if (map)
+                map.invalidateSize();
+        })
     }
 }
 
@@ -48,7 +56,7 @@ const trackUserLocation = () => {
                 marker.setLatLng(latlng);
                 marker.bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
             } else {
-                if(map)
+                if (map)
                     marker = L.marker(latlng, { icon: riderIcon }).addTo(map)
                         .bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
             }
@@ -57,11 +65,11 @@ const trackUserLocation = () => {
                 circle.setLatLng(latlng);
                 circle.setRadius(accuracy);
             } else {
-                if(map)
+                if (map)
                     circle = L.circle(latlng, accuracy).addTo(map);
             }
 
-            if(map)
+            if (map)
                 centerMapOnLocation(map, latlng);
 
             L.Routing.control({
@@ -90,14 +98,31 @@ const trackUserLocation = () => {
     return watchId;
 }
 
-onMounted(() => {
-    initMap();
-    const watchId = trackUserLocation();
-    onMounted(() => {
-        if(watchId){
-            navigator.geolocation.clearWatch(watchId);
+onMounted(async () => {
+    if (Capacitor.isNativePlatform()) {
+        const permission = await Geolocation.requestPermissions();
+        if (permission.location === 'denied') {
+            alert('Location permission is required to use this feature.');
+            return;
         }
-    })
+
+    }
+
+    setTimeout(() => {
+        initMap();
+
+        const watchId = trackUserLocation();
+        onBeforeUnmount(() => {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+
+            if (map)
+                map.remove();
+        })
+    }, 100)
+
+
 })
 </script>
 

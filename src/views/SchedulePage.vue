@@ -9,6 +9,8 @@ import {
     IonTitle,
     IonContent
 } from '@ionic/vue';
+
+
 </script>
 <template>
     <ion-page id="main-content">
@@ -22,7 +24,7 @@ import {
         </ion-header>
         <ion-content :fullscreen="true">
             <div class="bg-gradient-to-t from-green-400 to-white-500 min-h-full">
-                <TimelineComponent />
+                <TimelineComponent/>
             </div>
         </ion-content>
     </ion-page>

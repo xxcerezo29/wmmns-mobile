@@ -1,5 +1,8 @@
 name: Build Ionic Vue for Android
 
+env:
+  WEB_APP_URL: http://35.240.198.68/api/
+
 on:
   release:
     types: [published]
@@ -19,6 +22,10 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Update .env
+        run: |
+          sed -i "s/VITE_WMMNS_API_URL=.*/VITE_WMMNS_API_URL=${WEB_APP_URL}/" .env
 
       - name: Build Ionic Vue app
         run: npm run build

@@ -6,6 +6,7 @@ export  const useAuthStore = defineStore('auth', {
     state: () => ({
         user: '',
         token: '',
+        type: '',
         errors: {} as Record<string, string>
     }),
     actions: {
@@ -15,6 +16,7 @@ export  const useAuthStore = defineStore('auth', {
                 const response = await api.post('/login', {email, password, type, remember});
                 this.user = response.data.user;
                 this.token = response.data.access_token;
+                this.type = response.data.type;
                 api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
                 if(this.token)
                   localStorage.setItem('token', this.token);
@@ -54,7 +56,8 @@ export  const useAuthStore = defineStore('auth', {
                 try{
                     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
                     const response = await api.get('/user');
-                    this.user = response.data;
+                    this.user = response.data.user;
+                    this.type = response.data.type;
                     if(token)
                       this.token = token;
                 } catch (error) {

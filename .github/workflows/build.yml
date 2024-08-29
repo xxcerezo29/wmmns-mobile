@@ -25,7 +25,7 @@ jobs:
 
       - name: Update .env
         run: |
-          sed -i "s/VITE_WMMNS_API_URL=.*/VITE_WMMNS_API_URL=${WEB_APP_URL}/" .env
+          sed -i "s#VITE_WMMNS_API_URL=.*#VITE_WMMNS_API_URL=${WEB_APP_URL}#" .env
 
       - name: Build Ionic Vue app
         run: npm run build

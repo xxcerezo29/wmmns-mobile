@@ -17,7 +17,41 @@ const mapContainer = ref<HTMLElement | null>(null);
 
 import riderIconURL from '@/Assets/garbage-truck.png';
 import { Capacitor } from '@capacitor/core';
-import { IonButton, IonModal } from '@ionic/vue';
+import { IonButton, modalController } from '@ionic/vue';
+import FinishedModal from '../FinishedModal.vue';
+import CancelModal from '../CancelModal.vue';
+
+const message = ref('This modal example uses the modalController to present and dismiss modals.');
+
+const openFinishedModal = async () => {
+    const modal = await modalController.create({
+        component: FinishedModal,
+        cssClass: 'centered-modal'
+    })
+
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'confirm') {
+      message.value = `Hello, ${data}!`;
+    }
+}
+
+const openCancelModal = async () => {
+    const modal = await modalController.create({
+        component: CancelModal,
+        cssClass: 'centered-modal'
+    })
+
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'confirm') {
+      message.value = `Hello, ${data}!`;
+    }
+}
 
 let map: L.Map | null = null;
 let marker: L.Marker | null = null;
@@ -76,12 +110,16 @@ const riderIcon = L.icon({
     popupAnchor: [0, -50],
 });
 
-const centerMapOnLocation = (map: L.Map, latlng: L.LatLng) => {
-    map.setView(latlng, map.getZoom(), { animate: true });
-}
+// const centerMapOnLocation = (map: L.Map, latlng: L.LatLng) => {
+//     map.setView(latlng, map.getZoom(), { animate: true });
+// }
 
 const markAsDone = () => {
-    alert('You have reached the final destination!');
+    openFinishedModal();
+}
+
+const cancel = () => {
+    openCancelModal();
 }
 
 const trackUserLocation = () => {
@@ -174,9 +212,26 @@ watch(() => props.waypoints, (newWayPoints) => {
             <ion-button class="w-full" @click="markAsDone" :disabled="!isAtFinalDestination">
                 Done
             </ion-button>
-            <ion-button class="w-full" @click="markAsDone" :disabled="!isAtFinalDestination">
+            <ion-button class="w-full" @click="cancel" :disabled="!isAtFinalDestination">
                 Cancel
             </ion-button>
         </div>
     </div>
 </template>
+
+
+<style scoped>
+.centered-modal .modal-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.centered-modal {
+  --height: 200px;
+  --width: 300px;
+  --border-radius: 20px;
+  --background: white;
+  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+</style>

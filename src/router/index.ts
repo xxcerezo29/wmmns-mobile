@@ -1,12 +1,12 @@
 import { useAuthStore } from "@/stores/auth";
 import { createRouter, createWebHistory } from "@ionic/vue-router";
-import { recording } from "ionicons/icons";
 import { RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    redirect: "/auth",
+    component: () => import('../views/WelcomePage.vue'),
+    meta: { guest: true },
   },
   {
     path: "/login",
@@ -39,6 +39,16 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("../views/RoutePage.vue"),
         meta: { requiresAuth: true },
       },
+      {
+        path: "map",
+        component: () =>import('../views/MapPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'profile',
+        component: () => import('../views/ProfilePage.vue'),
+        meta: { requiresAuth: true },
+      }
     ],
   },
   {

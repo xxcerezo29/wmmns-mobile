@@ -127,9 +127,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="m-auto w-full max-h-96">
-        <div id="map" ref="mapContainer" style="height: 500px; width: 100%;" class="">
+    <div id="map" ref="mapContainer"  class="h-full w-full">
 
-        </div>
     </div>
 </template>

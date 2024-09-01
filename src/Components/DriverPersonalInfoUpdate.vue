@@ -1,0 +1,83 @@
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import InputError from './InputError.vue';
+import { useAuthStore } from '@/stores/auth';
+import { Driver } from '@/Types/inerface';
+
+
+const updatePersonal = ref<{
+    firstname: string;
+    middlename: string;
+    lastname: string;
+    email: string;
+    mobile_number: string;
+}>({
+    firstname: '',
+    middlename: '',
+    lastname: '',
+    email: '',
+    mobile_number: ''
+});
+
+const auth = useAuthStore();
+
+onMounted(() => {
+    if(auth.user){
+        const driver = auth.user as Driver;
+        updatePersonal.value.firstname = driver.firstname;
+        updatePersonal.value.middlename = driver.middlename;
+        updatePersonal.value.lastname = driver.lastname;
+        updatePersonal.value.email = driver.email;
+        updatePersonal.value.mobile_number = driver.mobile_number;
+    }
+})
+</script>
+<template>
+    <form class="p-5 bg-green-200 rounded-badge shadow-md">
+        <div>
+            <h1>Personal Information</h1>
+        </div>
+        <div>
+            <label for="line1" class="label">
+                <span class="label-text">Firstname:</span>
+            </label>
+            <input v-model="updatePersonal.firstname" type="text" id="line1" class="input input-bordered w-full" />
+            <InputError class="mt-2"/>
+        </div>
+        <div>
+            <label for="line1" class="label">
+                <span class="label-text">Middlename:</span>
+            </label>
+            <input v-model="updatePersonal.middlename" type="text" id="line1" class="input input-bordered w-full" />
+            <InputError class="mt-2"/>
+        </div>
+        <div>
+            <label for="line1" class="label">
+                <span class="label-text">Lastname:</span>
+            </label>
+            <input v-model="updatePersonal.lastname" type="text" id="line1" class="input input-bordered w-full" />
+            <InputError class="mt-2"/>
+        </div>
+        <div>
+            <label for="line1" class="label">
+                <span class="label-text">Email:</span>
+            </label>
+            <input v-model="updatePersonal.email" type="email" id="line1" class="input input-bordered w-full" />
+            <InputError class="mt-2"/>
+        </div>
+        <div>
+            <label for="line1" class="label">
+                <span class="label-text">Mobile Number:</span>
+            </label>
+            <input v-model="updatePersonal.mobile_number" type="text" id="line1" class="input input-bordered w-full" />
+            <InputError class="mt-2"/>
+        </div>
+
+        <div class="flex  justify-end mt-5">
+            <button type="submit"
+                class=" bg-white text-black text-lg text-center p-3 rounded-btn hover:bg-slate-200 transition">
+                Submit
+            </button>
+        </div>
+    </form>
+</template>

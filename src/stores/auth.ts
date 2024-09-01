@@ -1,10 +1,13 @@
 import api from "@/services/api";
 import { defineStore } from "pinia";
 import { FormData } from "./registration";
+import { Driver, Resident } from "@/Types/inerface";
+
+type User = Driver | Resident;
 
 export  const useAuthStore = defineStore('auth', {
     state: () => ({
-        user: '',
+        user: null as User | null,
         token: '',
         type: '',
         errors: {} as Record<string, string>
@@ -45,7 +48,7 @@ export  const useAuthStore = defineStore('auth', {
             }
           },
           logout() {
-            this.user = '';
+            this.user = null;
             this.token = '';
             localStorage.removeItem('token');
             delete api.defaults.headers.common['Authorization'];

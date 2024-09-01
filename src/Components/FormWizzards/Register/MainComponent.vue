@@ -5,13 +5,15 @@ import StepOne from './StepOne.vue';
 import StepTwo from './StepTwo.vue';
 import StepThree from './StepThree.vue';
 import ReviewSubmit from './ReviewSubmit.vue';
-import { computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import router from '@/router';
 import { useAuthStore } from '@/stores/auth';
 import InputError from '@/Components/InputError.vue';
 
 const formStore = useRegistration();
 const authStore = useAuthStore();
+
+const loading = ref(false);
 
 
 interface Step {
@@ -47,64 +49,67 @@ const nextStep = () => {
 }
 
 const submit = async () => {
-  await authStore.register(formStore.formData);
-  if (authStore.user) {
-    formStore.$reset();
-    router.push('/home');
+  loading.value = true;
+  try {
+    await authStore.register(formStore.formData);
+    if (authStore.user) {
+      formStore.$reset();
+      router.push('/home');
+    }
+    console.log(formStore.formData);
+  }finally {
+    loading.value = false;
   }
-  console.log(formStore.formData);
+  
 }
 
 watch(() => formStore.formData, () => {
-    authStore.clearErrors();
+  authStore.clearErrors();
 }, { deep: true });
 
 watch(() => authStore.errors, () => {
-  if(authStore.errors.firstname) {
+  if (authStore.errors.firstname) {
     goToStep(0)
   }
-  if(authStore.errors.middlename) {
+  if (authStore.errors.middlename) {
     goToStep(0)
   }
-  if(authStore.errors.lastname) {
+  if (authStore.errors.lastname) {
     goToStep(0)
   }
-  if(authStore.errors.line1) {
+  if (authStore.errors.line1) {
     goToStep(1)
   }
-  if(authStore.errors.barangay) {
+  if (authStore.errors.barangay) {
     goToStep(1)
   }
-  if(authStore.errors.email) {
+  if (authStore.errors.email) {
     goToStep(2)
   }
-  if(authStore.errors.password) {
+  if (authStore.errors.password) {
     goToStep(2)
   }
-}, {deep : true})
+}, { deep: true })
 
 
 </script>
 
 <template>
-  <div class="w-full max-w-xl mx-auto sm:p-6 bg-white shadow-lg rounded-lg overflow-y-auto h-[calc(100vh-150px)] p-4">
-    <h1 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">Registration Form</h1>
-
-    <div class="mb-4 sm:mb-6">
-      <component :is="currentStepComponent"></component>
-    </div>
-
-    <div class="flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0">
-      <button class="btn btn-secondary w-full sm:w-auto" @click="prevStep" :disabled="isFirstStep">Previous</button>
-      <div v-if="!isLastStep">
-        <button class="btn btn-primary w-full sm:w-auto" @click="nextStep"
-          :disabled="!formStore.isNextEnabled">Next</button>
-      </div>
-      <div v-else>
-        <button class="btn btn-success w-full sm:w-auto" @click="submit">Submit</button>
-      </div>
-      <button class="btn btn-secondary w-full sm:w-auto" @click="router.push('login')">Cancel</button>
-      <InputError class="mt-2" :message="authStore.errors.general" />
-    </div>
+  <ion-progress-bar v-if="loading" type="indeterminate" color="primary"></ion-progress-bar>
+  <div class="w-full mt-4 px-6 overflow-y-auto">
+    <component :is="currentStepComponent"></component>
   </div>
-</template>./StepOne.vue./StepTwo.vue./StepThree.vue./ReviewSubmit.vue
+
+  <div class="p-6 flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 mt-4 w-full">
+    <button class=" !border-white text-white text-lg p-3 rounded transition w-full sm:w-auto" @click="prevStep"
+      :disabled="isFirstStep">Previous</button>
+    <button v-if="!isLastStep"
+      class="bg-white text-black text-lg p-3 rounded-btn hover:bg-slate-200 transition w-full sm:w-auto"
+      @click="nextStep" :disabled="!formStore.isNextEnabled">Next</button>
+    <button v-else
+      class="w-full bg-white text-black text-lg text-center p-3 rounded-btn hover:bg-slate-200 transition"" @click="submit">Submit</button>
+    <a class="border-2 border-white text-white text-lg text-center p-3 rounded transition w-full sm:w-auto"
+      href="/">Cancel</a>
+  </div>
+  <InputError class="mt-2" :message="authStore.errors.general" />
+</template>

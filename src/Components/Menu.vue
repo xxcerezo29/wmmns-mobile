@@ -10,7 +10,6 @@
         <ion-content>
             <ion-list>
                 <ion-item button @click="goTo('/auth/profile')">Profile</ion-item>
-                <ion-item button @click="goTo('/settings')">Settings</ion-item>
                 <ion-item button @click="logout">Logout</ion-item>
             </ion-list>
         </ion-content>

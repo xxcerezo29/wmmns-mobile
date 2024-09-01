@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatTime } from '@/function';
 import api from '@/services/api';
 import { MapIcon } from '@heroicons/vue/24/outline';
 import { computed, onMounted, ref } from 'vue';
@@ -47,16 +48,6 @@ onMounted(async () => {
     selectedDay.value = days[today.getDay()];
 })
 
-const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':').map(Number);
-    const date = new Date();
-    date.setHours(hours, minutes);
-    return new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-    }).format(date);
-}
 
 </script>
 <template>

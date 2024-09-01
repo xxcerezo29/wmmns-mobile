@@ -5,25 +5,16 @@ import L from 'leaflet';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet-routing-machine';
 import { Geolocation } from '@capacitor/geolocation';
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-
-
-const props = defineProps<{
-    waypoints: Array<{ lat: number; lng: number }>;
-}>();
-
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const mapContainer = ref<HTMLElement | null>(null);
 
 import riderIconURL from '@/Assets/garbage-truck.png';
 import { Capacitor } from '@capacitor/core';
-import { IonButton, IonModal } from '@ionic/vue';
 
 let map: L.Map | null = null;
 let marker: L.Marker | null = null;
 let circle: L.Circle | null = null;
-const routingControl = ref<L.Control | null>(null);
-const isAtFinalDestination = ref(false);
 
 const initMap = () => {
     if (mapContainer.value && !map) {
@@ -43,32 +34,6 @@ const initMap = () => {
     }
 }
 
-const addWaypoints = (waypoints: Array<{ lat: number; lng: number }>) => {
-    if (!map || !waypoints.length) return;
-
-    if (routingControl.value) {
-        map.removeControl(routingControl.value);
-    }
-
-    const latlngs = waypoints.map(point => L.latLng(point.lat, point.lng));
-
-    routingControl.value = L.Routing.control({
-        waypoints: latlngs,
-        routeWhileDragging: true,
-        createMarker: () => null,
-    }).addTo(map);
-
-    watch(() => marker?.getLatLng(), () => {
-        const finalWaypoint = latlngs[latlngs.length - 1];
-        const userLocation = marker?.getLatLng();
-        if (userLocation && userLocation.distanceTo(finalWaypoint) < 20) {
-            isAtFinalDestination.value = true;
-        } else {
-            isAtFinalDestination.value = true;
-        }
-    }, { immediate: true })
-}
-
 const riderIcon = L.icon({
     iconUrl: riderIconURL,
     iconSize: [50, 50],
@@ -78,10 +43,6 @@ const riderIcon = L.icon({
 
 const centerMapOnLocation = (map: L.Map, latlng: L.LatLng) => {
     map.setView(latlng, map.getZoom(), { animate: true });
-}
-
-const markAsDone = () => {
-    alert('You have reached the final destination!');
 }
 
 const trackUserLocation = () => {
@@ -108,7 +69,20 @@ const trackUserLocation = () => {
                     circle = L.circle(latlng, accuracy).addTo(map);
             }
 
-            map?.setView(latlng, map.getZoom(), { animate: true });
+            if (map)
+                centerMapOnLocation(map, latlng);
+
+            L.Routing.control({
+                waypoints: [
+                    latlng,
+                    L.latLng(16.7060, 121.5550)
+                ],
+                routeWhileDragging: true,
+                addWaypoints: false,
+                draggableWaypoints: false,
+                show: false,
+                createMarker: () => null
+            }).addTo(map);
         },
         (error) => {
             console.log(error);
@@ -150,33 +124,10 @@ onMounted(async () => {
 
 
 })
-
-watch(() => props.waypoints, (newWayPoints) => {
-    if (map) {
-        addWaypoints(newWayPoints);
-    }
-}, { immediate: true });
 </script>
 
 <template>
-    <div id="map" ref="mapContainer" style="position: relative; height: 100%; width: 100%">
-        <div class="flex gap-2 w-full" style="
-        position: absolute;
-        bottom: 20px;
-        left: 0;
-        right: 0;
-        margin: 0 auto;
-        width: max-content;
-        z-index: 1000;
-        width: 100%;
-        max-width: 90%
-        ">
-            <ion-button class="w-full" @click="markAsDone" :disabled="!isAtFinalDestination">
-                Done
-            </ion-button>
-            <ion-button class="w-full" @click="markAsDone" :disabled="!isAtFinalDestination">
-                Cancel
-            </ion-button>
-        </div>
+    <div id="map" ref="mapContainer"  class="h-full w-full">
+
     </div>
 </template>

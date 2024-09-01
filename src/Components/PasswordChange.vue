@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { toast } from '@/function';
+import api from '@/services/api';
 import { ref } from 'vue';
+import InputError from './InputError.vue';
 
 const updatePassword = ref<{
     current_password: string;
@@ -11,9 +14,33 @@ const updatePassword = ref<{
     password_confirmation: ''
 });
 
+const errors = ref<Record<string, string>>({});
+
+const submit = async () => {
+    errors.value = {};
+    try {
+        const response = await api.post('/password', updatePassword.value);
+        updatePassword.value = {
+            current_password: '',
+            password: '',
+            password_confirmation: ''
+        };
+
+        toast('top', 'Password was changed successfully!')
+
+        console.log(response);
+    } catch (error: any) {
+        if (error.response && error.response.data.errors) {
+            errors.value = error.response.data.errors;
+        } else {
+            toast('top', 'An unexpected error occurred. Please try again.');
+        }
+    }
+}
+
 </script>
 <template>
-    <form class="p-5 bg-green-200 rounded-badge shadow-md">
+    <form @submit.prevent="submit" class="p-5 bg-green-200 rounded-badge shadow-md">
         <div>
             <h1>Change Password</h1>
         </div>
@@ -23,19 +50,22 @@ const updatePassword = ref<{
             </label>
             <input v-model="updatePassword.current_password" type="password" id="line2"
                 class="input input-bordered w-full" />
+            <InputError :message="errors.current_password" />
         </div>
         <div>
             <label for="line2" class="label">
                 <span class="label-text">New Password:</span>
             </label>
             <input v-model="updatePassword.password" type="password" id="line2" class="input input-bordered w-full" />
+            <InputError :message="errors.password" />
         </div>
         <div>
             <label for="line2" class="label">
-              <span class="label-text">Password Confirmation:</span>
+                <span class="label-text">Password Confirmation:</span>
             </label>
-            <input  v-model="updatePassword.password_confirmation" type="password" id="line2" class="input input-bordered w-full" />
-          </div>
+            <input v-model="updatePassword.password_confirmation" type="password" id="line2"
+                class="input input-bordered w-full" />
+        </div>
         <div class="flex  justify-end mt-5">
             <button type="submit"
                 class=" bg-white text-black text-lg text-center p-3 rounded-btn hover:bg-slate-200 transition">

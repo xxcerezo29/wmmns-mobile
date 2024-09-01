@@ -48,19 +48,26 @@ const routes: Array<RouteRecordRaw> = [
         path: 'profile',
         component: () => import('../views/ProfilePage.vue'),
         meta: { requiresAuth: true },
+      },
+    ],
+  },
+  {
+    path: '/driver/:scheduleId',
+    component: () => import('../layouts/MapLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () =>import('../views/DriverMapPage.vue'),
+        meta: { requiresAuth: true },
       }
     ],
+    meta: { requiresAuth: true },
   },
   {
     path: "/register",
     component: () => import("../views/Auth/Register.vue"),
     meta: { guest: true },
   },
-  // {
-  //   path: '/home',
-  //   component: () => import('../views/Home.vue'),
-  //   // meta: { requiresAuth: true }
-  // },
 ];
 
 const router = createRouter({

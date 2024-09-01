@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import MapComponent from '@/Components/Map/MapComponent.vue';
+import ResidentMapComponent from '@/Components/Map/ResidentMapComponent.vue';
 import { 
     IonPage,
     IonHeader,
@@ -23,7 +23,7 @@ import {
         </ion-header>
         <ion-content :fullscreen="true">
             <div class="bg-gradient-to-t from-green-400 to-white-500 h-full min-h-full">
-                <MapComponent />
+                <ResidentMapComponent />
             </div>
             
         </ion-content>

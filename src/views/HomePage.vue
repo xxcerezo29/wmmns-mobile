@@ -62,6 +62,7 @@
 </template>
 <script setup lang="ts">
 import TruckListComponent from '@/Components/TruckListComponent.vue';
+import { formatTime } from '@/function';
 import api from '@/services/api';
 import { useAuthStore } from '@/stores/auth';
 import { Cog6ToothIcon, MapIcon, MapPinIcon } from '@heroicons/vue/24/outline';
@@ -98,16 +99,5 @@ onMounted(async () => {
         }
     }
 });
-
-const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':').map(Number);
-    const date = new Date();
-    date.setHours(hours, minutes);
-    return new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-    }).format(date);
-}
 
 </script>

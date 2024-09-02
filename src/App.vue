@@ -17,7 +17,7 @@ onMounted(async() => {
     try{
       await initializePushNotifications();
     }catch(error){
-      console.log('Failed to initialize push notifications', error);
+      alert('Failed to initialize push notifications: '+ error);
     }
 })
 

@@ -1,5 +1,4 @@
 import { PushNotifications } from "@capacitor/push-notifications";
-import { notifications } from "ionicons/icons";
 
 export const initializePushNotifications = async () => {
   await addListeners();
@@ -9,17 +8,17 @@ export const initializePushNotifications = async () => {
 
 const addListeners = async () => {
   await PushNotifications.addListener("registration", (token) => {
-    console.info("Registration Token: ", token.value);
+    alert("Registration Token: " + token.value);
   });
 
   await PushNotifications.addListener("registrationError", (err) => {
-    console.error("Registration error: ", err.error);
+    alert("Registration error: "+ err.error);
   });
 
   await PushNotifications.addListener(
     "pushNotificationReceived",
     (notification) => {
-      console.log("Push notification received: ", notification);
+        alert("Push notification received: "+ notification);
     }
   );
 

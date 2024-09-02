@@ -1,25 +1,55 @@
 import { PushNotifications } from "@capacitor/push-notifications";
+import { notifications } from "ionicons/icons";
 
-PushNotifications.requestPermissions().then(result => {
-    if(result.receive === 'granted'){
-        PushNotifications.register();
-    }else{
-        console.log('Push Notifications permission nor granted.');
+export const initializePushNotifications = async () => {
+  await addListeners();
+
+  await registerNotifications();
+};
+
+const addListeners = async () => {
+  await PushNotifications.addListener("registration", (token) => {
+    console.info("Registration Token: ", token.value);
+  });
+
+  await PushNotifications.addListener("registrationError", (err) => {
+    console.error("Registration error: ", err.error);
+  });
+
+  await PushNotifications.addListener(
+    "pushNotificationReceived",
+    (notification) => {
+      console.log("Push notification received: ", notification);
     }
-});
+  );
 
-PushNotifications.addListener('registration', (token) => {
-    console.log('Push registration success, token: ', token.value );
-});
+  await PushNotifications.addListener(
+    "pushNotificationActionPerformed",
+    (notification) => {
+      console.log(
+        "Push notification action performed",
+        notification.actionId,
+        notification.inputValue
+      );
+    }
+  );
+};
 
-PushNotifications.addListener('registrationError', (error) => {
-    console.error('Push registration error: ', error);
-});
+const registerNotifications = async () => {
+  let permStatus = await PushNotifications.checkPermissions();
 
-PushNotifications.addListener('pushNotificationReceived', (notification) => {
-    console.log('Push Notification received: ', notification);
-});
+  if (permStatus.receive === "prompt") {
+    permStatus = await PushNotifications.requestPermissions();
+  }
 
-PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-    console.log('Push notificaiton action performed: ', action);
-});
+  if (permStatus.receive !== "granted") {
+    throw new Error("User denied permissions!");
+  }
+
+  await PushNotifications.register();
+};
+
+export const getDeliveredNotifications = async () => {
+  const notificationList = await PushNotifications.getDeliveredNotifications();
+  console.log("Delivered notifications", notificationList);
+};

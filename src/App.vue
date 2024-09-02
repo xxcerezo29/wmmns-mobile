@@ -9,4 +9,16 @@ import {
   IonApp,
   IonRouterOutlet,
 } from '@ionic/vue';
+import { initializePushNotifications } from './push-notifications';
+import { onMounted } from 'vue';
+
+
+onMounted(async() => {
+    try{
+      await initializePushNotifications();
+    }catch(error){
+      console.log('Failed to initialize push notifications', error);
+    }
+})
+
 </script>

@@ -57,10 +57,10 @@ const submit = async () => {
       router.push('/home');
     }
     console.log(formStore.formData);
-  }finally {
+  } finally {
     loading.value = false;
   }
-  
+
 }
 
 watch(() => formStore.formData, () => {
@@ -89,7 +89,7 @@ watch(() => authStore.errors, () => {
   if (authStore.errors.password) {
     goToStep(2)
   }
-}, { deep: true })
+}, { deep: true });
 
 
 </script>
@@ -107,7 +107,7 @@ watch(() => authStore.errors, () => {
       class="bg-white text-black text-lg p-3 rounded-btn hover:bg-slate-200 transition w-full sm:w-auto"
       @click="nextStep" :disabled="!formStore.isNextEnabled">Next</button>
     <button v-else
-      class="w-full bg-white text-black text-lg text-center p-3 rounded-btn hover:bg-slate-200 transition"" @click="submit">Submit</button>
+      class="w-full bg-white text-black text-lg text-center p-3 rounded-btn hover:bg-slate-200 transition" @click="submit">Submit</button>
     <a class="border-2 border-white text-white text-lg text-center p-3 rounded transition w-full sm:w-auto"
       href="/">Cancel</a>
   </div>

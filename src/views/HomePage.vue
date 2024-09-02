@@ -10,6 +10,7 @@
         </ion-header>
         <ion-content :fullscreen="true" >
             <div class="bg-gradient-to-t from-green-400 to-white-500 min-h-full">
+                <ion-progress-bar v-if="loading" type="indeterminate" color="primary"></ion-progress-bar>
                 <div class="py-4">
                     <TruckListComponent v-if="auth.type === 'resident'" />
                     <div class="p-4">
@@ -18,39 +19,107 @@
                             <h1  v-if="auth.type === 'resident'">Today's Route</h1>
                             <h1  v-else-if="auth.type === 'driver'">My Today's Route</h1>
                         </div>
-                        <div v-if="schedules?.length" class="flex flex-col gap-2">
-                            <div v-for="schedule in schedules" :key="schedule.id"  class="bg-green-400 p-4 rounded-xl">
-                                <div class="flex justify-between">
-                                    <div>
-                                        <MapIcon class="w-7" />
-                                        <h1>{{schedule.route_name}}</h1>
-                                    </div>
-                                    <div class="dropdown dropdown-end">
-                                        <div tabindex="0" role="button">
-                                            <button class="bg-green-100 rounded-full p-4">
-                                                <Cog6ToothIcon class="w-7" />
-                                            </button>
+                        <div v-if="!loading">
+                            <div v-if="schedules?.length" class="flex flex-col gap-2">
+                                <div v-for="schedule in schedules" :key="schedule.id"  class="bg-green-400 p-4 rounded-xl">
+                                    <div class="flex justify-between">
+                                        <div>
+                                            <MapIcon class="w-7" />
+                                            <h1>{{schedule.route_name}}</h1>
                                         </div>
-                                        <ul tabindex="0"
-                                            class="dropdown-content  menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                                            <li><a class="!text-black">View</a></li>
-                                            <li><a class="!text-black">Start</a></li>
-                                        </ul>
+                                        <div class="dropdown dropdown-end">
+                                            <div tabindex="0" role="button">
+                                                <button class="bg-green-100 rounded-full p-4">
+                                                    <Cog6ToothIcon class="w-7" />
+                                                </button>
+                                            </div>
+                                            <ul tabindex="0"
+                                                class="dropdown-content  menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                                <li><a class="!text-black">View</a></li>
+                                                <li><a class="!text-black">Start</a></li>
+                                            </ul>
+                                        </div>
+    
                                     </div>
+                                    <div>
+                                        <span>Truck: {{ schedule.truck_plate}}</span>
+                                    </div>
+                                    <div>
+                                        <span>{{formatTime(schedule.time)}}</span>
+                                    </div>
+                                </div>
+    
+                            </div>
+                            <div v-else class="bg-gray-200 p-4 rounded-xl">
+                                <p>No schedules available for this day.</p>
+                            </div>
+                        </div>
+                        <div  v-if="loading">
+                            <div class="flex flex-col gap-2">
+                                <div class="bg-green-400 p-4 rounded-xl">
+                                    <div class="flex justify-between">
+                                        <ion-skeleton-text :animated="true" style="width: 50px; height: 50px;"></ion-skeleton-text>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
+                                    <div>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
+                                    <div>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
+                                </div>
 
+                                <div class="bg-green-400 p-4 rounded-xl">
+                                    <div class="flex justify-between">
+                                        <ion-skeleton-text :animated="true" style="width: 50px; height: 50px;"></ion-skeleton-text>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
+                                    <div>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
+                                    <div>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
                                 </div>
-                                <div>
-                                    <span>Truck: {{ schedule.truck_plate}}</span>
+                                <div class="bg-green-400 p-4 rounded-xl">
+                                    <div class="flex justify-between">
+                                        <ion-skeleton-text :animated="true" style="width: 50px; height: 50px;"></ion-skeleton-text>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
+                                    <div>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
+                                    <div>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
                                 </div>
-                                <div>
-                                    <span>{{formatTime(schedule.time)}}</span>
+                                <div class="bg-green-400 p-4 rounded-xl">
+                                    <div class="flex justify-between">
+                                        <ion-skeleton-text :animated="true" style="width: 50px; height: 50px;"></ion-skeleton-text>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
+                                    <div>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
+                                    <div>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
+                                </div>
+                                <div class="bg-green-400 p-4 rounded-xl">
+                                    <div class="flex justify-between">
+                                        <ion-skeleton-text :animated="true" style="width: 50px; height: 50px;"></ion-skeleton-text>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
+                                    <div>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
+                                    <div>
+                                        <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    </div>
                                 </div>
                             </div>
-
                         </div>
-                        <div v-else class="bg-gray-200 p-4 rounded-xl">
-                            <p>No schedules available for this day.</p>
-                        </div>
+                        
 
                     </div>
                 </div>
@@ -66,7 +135,7 @@ import { formatTime } from '@/function';
 import api from '@/services/api';
 import { useAuthStore } from '@/stores/auth';
 import { Cog6ToothIcon, MapIcon, MapPinIcon } from '@heroicons/vue/24/outline';
-import { IonPage, IonHeader, IonToolbar, IonContent, IonTitle, IonButtons, IonMenuButton } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonContent, IonTitle, IonButtons, IonMenuButton, IonProgressBar, IonSkeletonText } from '@ionic/vue';
 import { onMounted, ref } from 'vue';
 
 interface schedule {
@@ -84,9 +153,12 @@ const schedules = ref<Array<schedule>>();
 
 const auth = useAuthStore();
 
+const loading = ref(false);
+
 
 onMounted(async () => {
     try{
+        loading.value = true;
         const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         const today = new Date();
         const day = days[today.getDay()];
@@ -97,6 +169,8 @@ onMounted(async () => {
         if(error.response){
             // s
         }
+    }finally {
+        loading.value = false;
     }
 });
 

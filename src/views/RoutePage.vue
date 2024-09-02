@@ -109,7 +109,7 @@ onMounted(async () => {
                 <div class=" h-1/2 min-h-1/2">
                     <DriverMapComponent :waypoints="waypoints" />
                 </div>
-                <div class="p-6 ">
+                <div class="p-6 " v-if="!loading">
                     <div v-if="schedules?.length" class="flex flex-col gap-2">
                         <div v-for="schedule in schedules" :key="schedule.id"
                             class="text-white bg-green-400 p-4 rounded-xl">
@@ -128,7 +128,7 @@ onMounted(async () => {
                                         class="dropdown-content  menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                                         <li><button @click="view(schedule.id)" class="!text-black">View</button></li>
                                         <li><button 
-                                                @click="start(schedule.id)" class="!text-black disabled:line-through">
+                                                @click="start(schedule.id)" :disabled="isScheduleMissed(schedule.time)" class="!text-black disabled:line-through">
                                                 Start
                                                 <span class="text-red-500" v-if="isScheduleMissed(schedule.time)">Missed
                                                     Schedule</span>
@@ -140,6 +140,22 @@ onMounted(async () => {
                                 <span>Start Time: {{ formatTime(schedule.time) }}</span>
                                 <span v-if="isScheduleMissed(schedule.time)" class="text-red-500"> - Missed
                                     Schedule</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-else>
+                    <div class="flex flex-col gap-2">
+                        <div
+                            class="text-white bg-green-400 p-4 rounded-xl">
+                            <div class="flex justify-between">
+                                <div>
+                                    <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                    <ion-skeleton-text :animated="true"></ion-skeleton-text>
+                                </div>
+                            </div>
+                            <div>
+                                <ion-skeleton-text :animated="true"></ion-skeleton-text>
                             </div>
                         </div>
                     </div>

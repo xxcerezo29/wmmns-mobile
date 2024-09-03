@@ -9,16 +9,19 @@ export const initializePushNotifications = async () => {
 const addListeners = async () => {
   await PushNotifications.addListener("registration", (token) => {
     alert("Registration Token: " + token.value);
+    console.log("Registration Token: " , token.value);
   });
 
   await PushNotifications.addListener("registrationError", (err) => {
     alert("Registration error: "+ err.error);
+    console.error("Registration error: ", err.error)
   });
 
   await PushNotifications.addListener(
     "pushNotificationReceived",
     (notification) => {
         alert("Push notification received: "+ notification);
+        console.log("Push notification received: "+ notification)
     }
   );
 

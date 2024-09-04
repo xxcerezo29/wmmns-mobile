@@ -5,7 +5,7 @@ import L from 'leaflet';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet-routing-machine';
 import { Geolocation } from '@capacitor/geolocation';
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 
 const props = defineProps<{
@@ -184,7 +184,7 @@ onMounted(async () => {
 
     }
 
-    nextTick(() =>{
+    setTimeout(() => {
         initMap();
         const watchId = trackUserLocation();
 
@@ -195,7 +195,7 @@ onMounted(async () => {
                 map = null
             } 
         })
-    })
+    }, 100)
 
 })
 

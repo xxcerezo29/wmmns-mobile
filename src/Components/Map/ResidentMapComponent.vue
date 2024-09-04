@@ -66,7 +66,7 @@ onMounted(async () => {
         }
     }
 
-    const pusher = new Pusher('1417267', {
+    const pusher = new Pusher('2b9e426ef902f27d56e7', {
         cluster: 'ap1',
     })
 

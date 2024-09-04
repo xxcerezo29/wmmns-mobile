@@ -11,10 +11,12 @@ const mapContainer = ref<HTMLElement | null>(null);
 
 import riderIconURL from '@/Assets/garbage-truck.png';
 import { Capacitor } from '@capacitor/core';
+import Pusher from 'pusher-js';
+import { useAuthStore } from '@/stores/auth';
+import { Driver } from '@/Types/inerface';
 
 let map: L.Map | null = null;
-let marker: L.Marker | null = null;
-let circle: L.Circle | null = null;
+const driverMarkers: Map<number, L.Marker> = new Map();
 
 const initMap = () => {
     if (mapContainer.value && !map) {
@@ -40,63 +42,20 @@ const riderIcon = L.icon({
     iconAnchor: [25, 50],
     popupAnchor: [0, -50],
 });
+const updateDriverLocation = (driverId: number, location: { lat: number; lng: number }) => {
+    const _driver = L.latLng(location);
 
-const centerMapOnLocation = (map: L.Map, latlng: L.LatLng) => {
-    map.setView(latlng, map.getZoom(), { animate: true });
-}
-
-const trackUserLocation = () => {
-    if (!map) return;
-    const watchId = navigator.geolocation.watchPosition(
-        (position) => {
-            const latlng = L.latLng(position.coords.latitude, position.coords.longitude);
-            const accuracy = position.coords.accuracy / 2;
-
-            if (marker) {
-                marker.setLatLng(latlng);
-                marker.bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
-            } else {
-                if (map)
-                    marker = L.marker(latlng, { icon: riderIcon }).addTo(map)
-                        .bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
-            }
-
-            if (circle) {
-                circle.setLatLng(latlng);
-                circle.setRadius(accuracy);
-            } else {
-                if (map)
-                    circle = L.circle(latlng, accuracy).addTo(map);
-            }
-
-            if (map)
-                centerMapOnLocation(map, latlng);
-
-            L.Routing.control({
-                waypoints: [
-                    latlng,
-                    L.latLng(16.7060, 121.5550)
-                ],
-                routeWhileDragging: true,
-                addWaypoints: false,
-                draggableWaypoints: false,
-                show: false,
-                createMarker: () => null
-            }).addTo(map);
-        },
-        (error) => {
-            console.log(error);
-            alert('Unable to retrieve your location.');
-        },
-        {
-            enableHighAccuracy: true,
-            maximumAge: 0,
-            timeout: 10000,
-
+    if (driverMarkers.has(driverId)) {
+        const marker = driverMarkers.get(driverId);
+        if (marker) {
+            marker.setLatLng(_driver);
         }
-    );
-    return watchId;
-}
+    } else {
+        const marker = L.marker(_driver, { icon: riderIcon }).addTo(map!);
+        driverMarkers.set(driverId, marker);
+    }
+};
+const auth = useAuthStore();
 
 onMounted(async () => {
     if (Capacitor.isNativePlatform()) {
@@ -105,17 +64,22 @@ onMounted(async () => {
             alert('Location permission is required to use this feature.');
             return;
         }
-
     }
+
+    const pusher = new Pusher('2b9e426ef902f27d56e7', {
+        cluster: 'ap1',
+    })
+
+    const channel = pusher.subscribe('private-'+auth.user?.barangay+'-track-garbage-truck');
+
+    channel.bind('TrackGarbageTruck', (data: { location: { lat: number; lng: number }, truck: any, user: Driver }) => {
+        updateDriverLocation(data.user.id,data.location);
+    });
 
     setTimeout(() => {
         initMap();
 
-        const watchId = trackUserLocation();
         onBeforeUnmount(() => {
-            if (watchId) {
-                navigator.geolocation.clearWatch(watchId);
-            }
 
             if (map)
                 map.remove();
@@ -127,7 +91,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div id="map" ref="mapContainer"  class="h-full w-full">
+    <div id="map" ref="mapContainer" class="h-full w-full">
 
     </div>
 </template>

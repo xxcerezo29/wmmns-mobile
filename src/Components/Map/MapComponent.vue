@@ -20,6 +20,7 @@ import { Capacitor } from '@capacitor/core';
 import { IonButton, modalController } from '@ionic/vue';
 import FinishedModal from '../FinishedModal.vue';
 import CancelModal from '../CancelModal.vue';
+import api from '@/services/api';
 
 const message = ref('This modal example uses the modalController to present and dismiss modals.');
 
@@ -122,10 +123,10 @@ const cancel = () => {
     openCancelModal();
 }
 
-const trackUserLocation = () => {
+const trackUserLocation =  () => {
     if (!map) return;
     const watchId = navigator.geolocation.watchPosition(
-        (position) => {
+        async (position) => {
             const latlng = L.latLng(position.coords.latitude, position.coords.longitude);
             const accuracy = position.coords.accuracy / 2;
 
@@ -139,14 +140,25 @@ const trackUserLocation = () => {
             }
 
             if (circle) {
-                circle.setLatLng(latlng);
-                circle.setRadius(accuracy);
+                circle.setLatLng(latlng).setRadius(accuracy);
             } else {
-                if (map)
-                    circle = L.circle(latlng, accuracy).addTo(map);
+                circle = L.circle(latlng, accuracy).addTo(map!);
             }
 
             map?.setView(latlng, map.getZoom(), { animate: true });
+
+            try{
+                await api.post('roams/location/update', {
+                    location: {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        accuracy: position.coords.accuracy
+                    }
+                });
+                console.log('Location sent to server successfully.');
+            }catch (error) {
+                console.error('Error sending location to server:', error);
+            }
         },
         (error) => {
             console.log(error);
@@ -174,18 +186,16 @@ onMounted(async () => {
 
     setTimeout(() => {
         initMap();
-
         const watchId = trackUserLocation();
-        onBeforeUnmount(() => {
-            if (watchId) {
-                navigator.geolocation.clearWatch(watchId);
-            }
 
-            if (map)
+        onBeforeUnmount(() => {
+            if (watchId)  navigator.geolocation.clearWatch(watchId);
+            if (map) {
                 map.remove();
+                map = null
+            } 
         })
     }, 100)
-
 
 })
 

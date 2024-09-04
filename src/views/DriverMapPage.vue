@@ -28,13 +28,15 @@ interface Ischedule {
     }
 }
 
-
 const route = useRoute();
 const scheduleId = route.params.scheduleId as string;
 
 const schedule = ref<Ischedule>();
 
 const waypoints = ref<Array<{ lat: number; lng: number }>>();
+
+
+
 
 onMounted(async () => {
     try {

@@ -77,6 +77,9 @@ const start = async (id: number) => {
     }
 }
 
+
+
+
 onMounted(async () => {
     try {
         const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -128,7 +131,7 @@ onMounted(async () => {
                                         class="dropdown-content  menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                                         <li><button @click="view(schedule.id)" class="!text-black">View</button></li>
                                         <li><button 
-                                                @click="start(schedule.id)" :disabled="isScheduleMissed(schedule.time)" class="!text-black disabled:line-through">
+                                                @click="start(schedule.id)"  class="!text-black disabled:line-through">
                                                 Start
                                                 <span class="text-red-500" v-if="isScheduleMissed(schedule.time)">Missed
                                                     Schedule</span>

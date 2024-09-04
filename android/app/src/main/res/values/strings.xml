@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">wmmns-mobile</string>
+    <string name="title_activity_main">wmmns-mobile</string>
+    <string name="package_name">com.wmmns.mobile</string>
+    <string name="custom_url_scheme">com.wmmns.mobile</string>
+</resources>

@@ -5,7 +5,7 @@ import L from 'leaflet';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet-routing-machine';
 import { Geolocation } from '@capacitor/geolocation';
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const mapContainer = ref<HTMLElement | null>(null);
 

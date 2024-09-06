@@ -16,11 +16,12 @@ const props = defineProps<{
 const mapContainer = ref<HTMLElement | null>(null);
 
 import riderIconURL from '@/Assets/garbage-truck.png';
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { IonButton, modalController } from '@ionic/vue';
 import FinishedModal from '../FinishedModal.vue';
 import CancelModal from '../CancelModal.vue';
 import api from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
 
 const message = ref('This modal example uses the modalController to present and dismiss modals.');
 
@@ -35,7 +36,7 @@ const openFinishedModal = async () => {
     const { data, role } = await modal.onWillDismiss();
 
     if (role === 'confirm') {
-      message.value = `Hello, ${data}!`;
+        message.value = `Hello, ${data}!`;
     }
 }
 
@@ -50,7 +51,7 @@ const openCancelModal = async () => {
     const { data, role } = await modal.onWillDismiss();
 
     if (role === 'confirm') {
-      message.value = `Hello, ${data}!`;
+        message.value = `Hello, ${data}!`;
     }
 }
 
@@ -59,6 +60,7 @@ let marker: L.Marker | null = null;
 let circle: L.Circle | null = null;
 const routingControl = ref<L.Control | null>(null);
 const isAtFinalDestination = ref(false);
+const auth = useAuthStore();
 
 const initMap = () => {
     if (mapContainer.value && !map) {
@@ -123,8 +125,52 @@ const cancel = () => {
     openCancelModal();
 }
 
-const trackUserLocation =  () => {
+const trackUserLocation = () => {
     if (!map) return;
+    const updateLocation = async (position: GeolocationPosition) => {
+        const latlng = L.LatLng(position.coords.latitude, position.coords.longitude);
+        const accuracy = position.coords.accuracy / 2;
+
+        if (marker) {
+            marker.setLatLng(latlng);
+            marker.bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
+        } else {
+            marker = L.marker(latlng, { icon: riderIcon }).addTo(map!)
+                .bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
+        }
+
+        if (circle) {
+            circle.setLatLng(latlng).setRadius(accuracy);
+        } else {
+            circle = L.circle(latlng, accuracy).addTo(map!);
+        }
+
+        map?.setView(latlng, map.getZoom(), { animate: true });
+
+        try {
+
+            const options = {
+                url: import.meta.env.VITE_WMMNS_API_URL + `/api/roams/location/update`,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${auth.token}`
+                },
+                data: {
+                    location: {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        accuracy: position.coords.accuracy
+                    }
+                }
+            }
+
+            const response = await CapacitorHttp.post(options);
+
+            console.log('Location sent to server successfully.');
+        } catch (error) {
+            console.error('Error sending location to server:', error);
+        }
+    }
     const watchId = navigator.geolocation.watchPosition(
         async (position) => {
             const latlng = L.latLng(position.coords.latitude, position.coords.longitude);
@@ -139,26 +185,11 @@ const trackUserLocation =  () => {
                         .bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
             }
 
-            if (circle) {
-                circle.setLatLng(latlng).setRadius(accuracy);
-            } else {
-                circle = L.circle(latlng, accuracy).addTo(map!);
-            }
-
             map?.setView(latlng, map.getZoom(), { animate: true });
 
-            try{
-                await api.post('roams/location/update', {
-                    location: {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                        accuracy: position.coords.accuracy
-                    }
-                });
-                console.log('Location sent to server successfully.');
-            }catch (error) {
-                console.error('Error sending location to server:', error);
-            }
+            setInterval(() => {
+                updateLocation(position);
+            }, 300000)
         },
         (error) => {
             console.log(error);
@@ -189,11 +220,11 @@ onMounted(async () => {
         const watchId = trackUserLocation();
 
         onBeforeUnmount(() => {
-            if (watchId)  navigator.geolocation.clearWatch(watchId);
+            if (watchId) navigator.geolocation.clearWatch(watchId);
             if (map) {
                 map.remove();
                 map = null
-            } 
+            }
         })
     }, 100)
 
@@ -232,16 +263,16 @@ watch(() => props.waypoints, (newWayPoints) => {
 
 <style scoped>
 .centered-modal .modal-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .centered-modal {
-  --height: 200px;
-  --width: 300px;
-  --border-radius: 20px;
-  --background: white;
-  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --height: 200px;
+    --width: 300px;
+    --border-radius: 20px;
+    --background: white;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 </style>

@@ -132,8 +132,8 @@
 <script setup lang="ts">
 import TruckListComponent from '@/Components/TruckListComponent.vue';
 import { formatTime } from '@/function';
-import api from '@/services/api';
 import { useAuthStore } from '@/stores/auth';
+import { CapacitorHttp } from '@capacitor/core';
 import { Cog6ToothIcon, MapIcon, MapPinIcon } from '@heroicons/vue/24/outline';
 import { IonPage, IonHeader, IonToolbar, IonContent, IonTitle, IonButtons, IonMenuButton, IonProgressBar, IonSkeletonText } from '@ionic/vue';
 import { onMounted, ref } from 'vue';
@@ -163,7 +163,16 @@ onMounted(async () => {
         const today = new Date();
         const day = days[today.getDay()];
 
-        const response = await api.get('/schedule/get-by-day/'+day);
+        const options= {
+            url: import.meta.env.VITE_WMMNS_API_URL + `/api/schedule/get-by-day/${day}`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.token}`
+            }
+        }
+
+        const response = await CapacitorHttp.get(options);
+
         schedules.value = response.data.schedules;
     }catch(error: any){
         if(error.response){

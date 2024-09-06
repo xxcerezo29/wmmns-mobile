@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { formatTime } from '@/function';
 import api from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
+import { CapacitorHttp } from '@capacitor/core';
 import { MapIcon } from '@heroicons/vue/24/outline';
 import { IonProgressBar, IonSkeletonText } from '@ionic/vue';
 import { computed, onMounted, ref } from 'vue';
@@ -33,10 +35,21 @@ const selectDay = (day: string) => {
     selectedDay.value = day;
 }
 
+const auth = useAuthStore();
+
 onMounted(async () => {
     try {
         loading.value = true;
-        const response = await api.get('/schedule');
+
+        const options= {
+            url: import.meta.env.VITE_WMMNS_API_URL + `/api/schedule`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.token}`
+            }
+        }
+
+        const response = await CapacitorHttp.get(options);
 
         schedules.value = response.data.schedules;
 

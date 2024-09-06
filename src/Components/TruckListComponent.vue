@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import api from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
+import { CapacitorHttp } from '@capacitor/core';
 import { TruckIcon } from '@heroicons/vue/24/outline';
 import { onMounted, ref } from 'vue';
 
@@ -11,12 +13,23 @@ interface truck {
 
 const trucksToday = ref<Array<truck>>();
 const loading = ref(false);
+const auth = useAuthStore();
 
 onMounted(async () => {
 
     try {
         loading.value = true;
-        const truckResponse = await api.get('/schedule/get-trucks-today');
+
+        const options= {
+            url: import.meta.env.VITE_WMMNS_API_URL + `/api/schedule/get-trucks-today`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.token}`
+            }
+        }
+
+        const truckResponse = await CapacitorHttp.get(options);
+
         trucksToday.value = truckResponse.data.trucks;
     } catch (error: any) {
         if (error.response) {

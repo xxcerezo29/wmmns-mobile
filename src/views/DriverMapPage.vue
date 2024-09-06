@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import MapComponent from '@/Components/Map/MapComponent.vue';
 import api from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
+import { CapacitorHttp } from '@capacitor/core';
 import {
     IonPage,
     IonContent
@@ -35,12 +37,19 @@ const schedule = ref<Ischedule>();
 
 const waypoints = ref<Array<{ lat: number; lng: number }>>();
 
-
+const auth = useAuthStore();
 
 
 onMounted(async () => {
     try {
-        const response = await api.get(`/schedule/get-by-id/${scheduleId}`);
+        const options= {
+            url: import.meta.env.VITE_WMMNS_API_URL + `/api/schedule/get-by-id/${scheduleId}`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.token}`
+            }
+        }
+        const response = await CapacitorHttp.get(options);
         schedule.value = response.data.schedules;
 
         if(schedule.value?.route?.waypoint)

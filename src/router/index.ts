@@ -25,7 +25,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true },
     children: [
       {
-        path: "",
+        path: "home",
         component: () => import("../views/HomePage.vue"),
         meta: { requiresAuth: true },
       },
@@ -86,7 +86,7 @@ router.beforeEach(async (to, from, next) => {
   if(to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated){
     next('/login');
   }else if(to.matched.some(record=> record.meta.guest)&& isAuthenticated){
-    next('/auth');
+    next('/auth/home');
   }else{
     next();
   }

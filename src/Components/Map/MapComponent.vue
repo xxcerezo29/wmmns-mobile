@@ -20,7 +20,6 @@ import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { IonButton, modalController } from '@ionic/vue';
 import FinishedModal from '../FinishedModal.vue';
 import CancelModal from '../CancelModal.vue';
-import api from '@/services/api';
 import { useAuthStore } from '@/stores/auth';
 
 const message = ref('This modal example uses the modalController to present and dismiss modals.');
@@ -128,7 +127,7 @@ const cancel = () => {
 const trackUserLocation = () => {
     if (!map) return;
     const updateLocation = async (position: GeolocationPosition) => {
-        const latlng = L.LatLng(position.coords.latitude, position.coords.longitude);
+        const latlng = new L.LatLng(position.coords.latitude, position.coords.longitude);
         const accuracy = position.coords.accuracy / 2;
 
         if (marker) {

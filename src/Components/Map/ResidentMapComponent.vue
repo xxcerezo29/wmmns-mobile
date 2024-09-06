@@ -42,7 +42,7 @@ const riderIcon = L.icon({
     iconAnchor: [25, 50],
     popupAnchor: [0, -50],
 });
-const updateDriverLocation = (driverId: number, location: { lat: number; lng: number }) => {
+const updateDriverLocation = (driverId: number, location: { lat: number; lng: number }, plateNumber: string) => {
     if(!map){
         console.log('Map is not initialized');
         return;
@@ -56,14 +56,16 @@ const updateDriverLocation = (driverId: number, location: { lat: number; lng: nu
     if (driverMarkers.has(driverId)) {
         const marker = driverMarkers.get(driverId);
         if (marker) {
-            marker.setLatLng(_driver);
+            marker.setLatLng(_driver).bindPopup(`<b>Plate Number:</b> ${plateNumber}`).openPopup();
         }
     } else {
-        const marker = L.marker(_driver, { icon: riderIcon }).addTo(map!);
+        const marker = L.marker(_driver, { icon: riderIcon })
+            .bindPopup(`<b>Plate Number:</b> ${plateNumber}`)
+            .addTo(map!);
+        marker.openPopup(); // Automatically opens the popup when the marker is added
         driverMarkers.set(driverId, marker);
     }
 };
-const auth = useAuthStore();
 
 onMounted(async () => {
     if (Capacitor.isNativePlatform()) {
@@ -82,8 +84,8 @@ onMounted(async () => {
 
     const channel = pusher.subscribe(auth.user?.barangay+'-track-garbage-truck');
 
-    channel.bind('TrackGarbageTruck', (data: { location: { lat: number; lng: number }, truck: any, user: Driver }) => {
-        updateDriverLocation(data.user.id, { lat: data.location.lat, lng: data.location.lng});
+    channel.bind('TrackGarbageTruck', (data: { location: { lat: number; lng: number }, truck:  any, user: Driver }) => {
+        updateDriverLocation(data.user.id, { lat: data.location.lat, lng: data.location.lng},  data.truck.plate_number);
         console.log('Received data:', data);
     });
 

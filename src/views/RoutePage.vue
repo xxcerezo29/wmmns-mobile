@@ -15,7 +15,8 @@ import {
     IonMenuButton,
     IonTitle,
     IonContent,
-    IonProgressBar
+    IonProgressBar,
+    IonSkeletonText
 } from '@ionic/vue';
 import { onMounted, ref } from 'vue';
 
@@ -75,6 +76,10 @@ const start = async (id: number) => {
         }
         
         const response = await CapacitorHttp.post(options);
+
+        alert(response);
+
+        console.log(response);
         
         if(response.data.roam)
             roam.setRoam(response.data.roam)

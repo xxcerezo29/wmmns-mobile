@@ -41,7 +41,7 @@ const login = async () => {
                 type: '',
                 remember: false,
             }
-            router.push('/auth/');
+            router.push('/auth/home');
         }
 
         console.log(response);

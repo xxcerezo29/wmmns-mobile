@@ -40,7 +40,7 @@ const confirm = async () => {
 
         roam.setEmpty();
 
-        router.push('/auth/');
+        router.push('/auth/home');
         modalController.dismiss(name.value, 'confirm');
     }
 }

@@ -54,7 +54,7 @@ const submit = async () => {
     await authStore.register(formStore.formData);
     if (authStore.user) {
       formStore.$reset();
-      router.push('/home');
+      router.push('/auth/home');
     }
     console.log(formStore.formData);
   } finally {

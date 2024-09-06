@@ -30,31 +30,19 @@ const auth = useAuthStore();
       <Menu />
       <ion-router-outlet id="main-content" />
       <ion-tab-bar slot="bottom">
-        <ion-tab-button v-if="auth.type === 'driver'" tab="route" href="/auth/route" :class="{
-          'text-green-500': route.path === '/auth/route',
-          'text-gray-500': route.path !== '/auth/route'
-        }">
+        <ion-tab-button v-if="auth.type === 'driver'" tab="route" href="/auth/route">
           <ion-icon :icon="mapOutline" />
           <ion-label>Route</ion-label>
         </ion-tab-button>
-        <ion-tab-button v-else tab="map" href="/auth/map" :class="{
-          'text-green-500': route.path === '/auth/map',
-          'text-gray-500': route.path !== '/auth/map'
-        }">
+        <ion-tab-button v-else tab="map" href="/auth/map">
           <ion-icon :icon="mapOutline" />
           <ion-label>Map</ion-label>
         </ion-tab-button>
-        <ion-tab-button tab="home" href="/auth" :class="{
-          'text-green-500': route.path === '/auth',
-          'text-gray-500': route.path !== '/auth'
-        }">
+        <ion-tab-button tab="home" href="/auth/home">
           <ion-icon :icon="homeOutline" />
           <ion-label>Home</ion-label>
         </ion-tab-button>
-        <ion-tab-button tab="schedule" href="/auth/schedule" :class="{
-          'text-green-500': route.path === '/auth/schedule',
-          'text-gray-500': route.path !== '/auth/schedule'
-        }">
+        <ion-tab-button tab="schedule" href="/auth/schedule">
           <ion-icon :icon="calendarOutline"/>
           <ion-label>Schedule</ion-label>
         </ion-tab-button>

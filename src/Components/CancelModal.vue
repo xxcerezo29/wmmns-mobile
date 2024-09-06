@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import router from '@/router';
 import api from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
 import { useRoamStore } from '@/stores/roam';
+import { CapacitorHttp } from '@capacitor/core';
 import {
     modalController,
 } from '@ionic/vue';
@@ -10,13 +12,22 @@ const name = ref();
 const loading = ref(false);
 
 const roam = useRoamStore();
+const auth = useAuthStore();
 
 const cancel = () => modalController.dismiss(null, 'cancel');
 const confirm = async () => {
     loading.value = true;
-
     try{
-        await api.post('/roams/cancel/'+roam.id);
+
+        const options= {
+            url: import.meta.env.VITE_WMMNS_API_URL + '/api/roams/cancel/'+roam.id,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.token}`
+            },
+        }
+
+        const response = await CapacitorHttp.post(options);
     }catch (error) {
         console.error('Failed to end roam:', error);
     }finally {
@@ -24,7 +35,7 @@ const confirm = async () => {
 
         roam.setEmpty();
 
-        router.push('/auth/');
+        router.push('/auth/home');
     modalController.dismiss(name.value, 'confirm');
     }
 

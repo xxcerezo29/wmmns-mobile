@@ -2,6 +2,7 @@
 import PrimaryButton from '@/Components/daisyUI/PrimaryButton.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
+import api from '@/services/api';
 import { useAuthStore } from '@/stores/auth';
 import { IonPage,IonProgressBar  } from '@ionic/vue';
 import { ref, watch } from 'vue';
@@ -26,10 +27,13 @@ const form = ref<{
 
 const loading = ref(false);
 
+
+
 const login = async () => {
     loading.value = true;
     try {
-        await authStore.login(form.value?.email, form.value?.password, form.value?.type, form.value.remember);
+        
+        const response = await authStore.login(form.value?.email, form.value?.password, form.value?.type, form.value.remember);
         if (authStore.user) {
             form.value = {
                 email: '',
@@ -39,10 +43,14 @@ const login = async () => {
             }
             router.push('/auth/');
         }
-    }finally {
+
+        console.log(response);
+    }catch(error){
+        alert(error);
+    }
+    finally {
         loading.value = false;
     }
-    
 }
 
 watch(() => form.value, () => {

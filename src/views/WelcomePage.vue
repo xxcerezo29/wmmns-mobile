@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { IonHeader, IonToolbar, IonTitle, IonPage } from '@ionic/vue';
+
+
 </script>
 <template>
     <ion-page>

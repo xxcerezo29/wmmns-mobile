@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { toast } from '@/function';
-import api from '@/services/api';
 import { ref } from 'vue';
 import InputError from './InputError.vue';
+import { useAuthStore } from '@/stores/auth';
+import { CapacitorHttp } from '@capacitor/core';
 
 const updatePassword = ref<{
     current_password: string;
@@ -15,11 +16,22 @@ const updatePassword = ref<{
 });
 
 const errors = ref<Record<string, string>>({});
+const auth = useAuthStore();
 
 const submit = async () => {
     errors.value = {};
     try {
-        const response = await api.post('/password', updatePassword.value);
+        const options= {
+            url: import.meta.env.VITE_WMMNS_API_URL + `/api/password`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.token}`
+            },
+             data: updatePassword.value
+        }
+
+        const response = await CapacitorHttp.get(options);
+
         updatePassword.value = {
             current_password: '',
             password: '',

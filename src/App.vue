@@ -20,5 +20,4 @@ onMounted(async() => {
       alert('Failed to initialize push notifications: '+ error);
     }
 })
-
 </script>

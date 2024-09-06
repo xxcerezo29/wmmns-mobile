@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/auth';
 import { Resident } from '@/Types/inerface';
 import api from '@/services/api';
 import { toast } from '@/function';
+import { CapacitorHttp } from '@capacitor/core';
 
 const auth = useAuthStore();
 
@@ -38,7 +39,18 @@ const barangay = ref<Array<ICities>>([]);
 const submit = async () => {
     errors.value = {};
     try {
-        const response = await api.post('/profile/resident', updatePersonal.value);
+
+        const options= {
+            url: import.meta.env.VITE_WMMNS_API_URL + `/api/profile/resident`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.token}`
+            },
+            data: updatePersonal.value
+        }
+
+        const response = await CapacitorHttp.post(options);
+        
         toast('top', 'Profile updated successfully!');
     } catch (error: any) {
         if (error.response && error.response.data.errors) {

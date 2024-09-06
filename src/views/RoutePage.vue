@@ -5,6 +5,7 @@ import router from '@/router';
 import api from '@/services/api';
 import { useAuthStore } from '@/stores/auth';
 import { useRoamStore } from '@/stores/roam';
+import { CapacitorHttp } from '@capacitor/core';
 import { Cog6ToothIcon, MapIcon } from '@heroicons/vue/24/outline';
 import {
     IonPage,
@@ -60,12 +61,21 @@ const start = async (id: number) => {
     loading.value = true;
     try {
         const started = formatDate(new Date());
-        const response = await api.post('/roams/start', {
-            driver_id: auth.user?.id,
+        const options= {
+            url: import.meta.env.VITE_WMMNS_API_URL + '/api/roams/start',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.token}`
+            },
+            data: {
+                driver_id: auth.user?.id,
             schedule_id: id,
             started: started
-        });
-
+            }
+        }
+        
+        const response = await CapacitorHttp.post(options);
+        
         if(response.data.roam)
             roam.setRoam(response.data.roam)
 
@@ -86,7 +96,15 @@ onMounted(async () => {
         const today = new Date();
         const day = days[today.getDay()];
 
-        const response = await api.get('/schedule/get-by-day/' + day);
+        const options= {
+            url: import.meta.env.VITE_WMMNS_API_URL + '/api/schedule/get-by-day/'+day,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.token}`
+            }
+        }
+
+        const response = await CapacitorHttp.get(options);
         schedules.value = response.data.schedules;
     } catch (error: any) {
         if (error.response) {

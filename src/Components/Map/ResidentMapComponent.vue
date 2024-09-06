@@ -66,11 +66,18 @@ onMounted(async () => {
         }
     }
 
+    const auth = useAuthStore();
+
     const pusher = new Pusher('2b9e426ef902f27d56e7', {
         cluster: 'ap1',
+        auth: {
+            headers: {
+                Authorization: `Bearer ${auth.token}`,
+            },
+        }
     })
 
-    const channel = pusher.subscribe('private-'+auth.user?.barangay+'-track-garbage-truck');
+    const channel = pusher.subscribe(auth.user?.barangay+'-track-garbage-truck');
 
     channel.bind('TrackGarbageTruck', (data: { location: { lat: number; lng: number }, truck: any, user: Driver }) => {
         updateDriverLocation(data.user.id,data.location);

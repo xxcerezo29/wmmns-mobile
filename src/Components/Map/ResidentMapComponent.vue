@@ -43,6 +43,14 @@ const riderIcon = L.icon({
     popupAnchor: [0, -50],
 });
 const updateDriverLocation = (driverId: number, location: { lat: number; lng: number }) => {
+    if(!map){
+        console.log('Map is not initialized');
+        return;
+    }
+    if(!location || typeof location.lat !== 'number' || typeof location.lng !== 'number'){
+        console.error('Invalid location data: ', location);
+        return;
+    }
     const _driver = L.latLng(location);
 
     if (driverMarkers.has(driverId)) {
@@ -70,17 +78,13 @@ onMounted(async () => {
 
     const pusher = new Pusher('2b9e426ef902f27d56e7', {
         cluster: 'ap1',
-        auth: {
-            headers: {
-                Authorization: `Bearer ${auth.token}`,
-            },
-        }
     })
 
     const channel = pusher.subscribe(auth.user?.barangay+'-track-garbage-truck');
 
     channel.bind('TrackGarbageTruck', (data: { location: { lat: number; lng: number }, truck: any, user: Driver }) => {
-        updateDriverLocation(data.user.id,data.location);
+        updateDriverLocation(data.user.id, { lat: data.location.lat, lng: data.location.lng});
+        console.log('Received data:', data);
     });
 
     setTimeout(() => {

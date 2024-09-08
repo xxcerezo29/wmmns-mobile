@@ -8,9 +8,9 @@ import { useAuthStore } from '@/stores/auth';
 import { CapacitorHttp } from '@capacitor/core';
 import { format } from 'date-fns';
 import router from '@/router';
+import { toast } from '@/function';
 
 const loading = ref(false);
-const errors = ref<Record<string, string>>({});
 
 interface complaint {
     id: number;
@@ -51,16 +51,22 @@ const complaints = ref<{
         to: number;
         total: number;
     }
-    }>();
+}>();
 
 const auth = useAuthStore();
+const currentPage = ref(1);
+const totalPage = ref(1);
 
-onMounted(async () => {
-    try{
+const view = (ref: string) => {
+    router.push('/auth/complaints/view/' + ref);
+}
+
+const fetchComplaints = async( page: number) => {
+    try {
         loading.value = true;
 
-        const options= {
-            url: import.meta.env.VITE_WMMNS_API_URL + `/api/complaints/`,
+        const options = {
+            url: import.meta.env.VITE_WMMNS_API_URL + `/api/complaints/?page=${page}`,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${auth.token}`
@@ -68,16 +74,28 @@ onMounted(async () => {
         }
 
         const response = await CapacitorHttp.get(options);
+        if (response.data.success === true){
+            complaints.value = response.data;
+            currentPage.value = response.data.reports.current_page;
+            totalPage.value = response.data.reports.last_page;
+        }
+        else {
+            toast('top', response.data.message);
+            router.push('/auth/home')
+        }
 
-        complaints.value = response.data;
 
-    }catch(error: any){
-        if(error.response){
+    } catch (error: any) {
+        if (error.response) {
             // s
         }
-    }finally {
+    } finally {
         loading.value = false;
     }
+}
+
+onMounted(async () => {
+    fetchComplaints(currentPage.value)
 })
 
 const formatDate = (dateString: string) => {
@@ -90,7 +108,14 @@ const formatReportType = (type: string) => {
 };
 
 const file = () => {
-    router.push('/auth/file-a-compplaints')
+    router.push('/auth/complaints/file-a-compplaints')
+}
+
+
+const goToPage = (page: number) => {
+    if( page > 0 && page <= totalPage.value){
+        fetchComplaints(page);
+    }
 }
 
 </script>
@@ -117,36 +142,47 @@ const file = () => {
                         </div>
                         <div v-if="!loading">
                             <div v-if="complaints?.reports.data.length" class="flex flex-col gap-2 ">
-                                <div v-for="complaint in complaints.reports.data" :key="complaint.id" class="bg-green-400 p-4 rounded-xl hover:bg-green-600">
+                                <div @click="view(complaint.reference_number)"
+                                    v-for="complaint in complaints.reports.data" :key="complaint.id"
+                                    class="bg-green-400 p-4 rounded-xl hover:bg-green-600">
                                     <div class="flex justify-between">
                                         <div>
                                             <div class="flex gap-2">
                                                 <DocumentIcon class="w-7" />
                                                 <div class="badge text-white uppercase" :class="{
                                                     'bg-green-600': complaint.status === 'resolved',
-                                                    'bg-yellow-600' : complaint.status === 'reviewed',
+                                                    'bg-yellow-600': complaint.status === 'reviewed',
                                                     'bg-red-600': complaint.status === 'pending',
                                                     'bg-gray-600': complaint.status === 'closed'
                                                 }">{{ complaint.status }}</div>
                                             </div>
-                                            
-                                            <h1>{{complaint.reference_number}}</h1>
+
+                                            <h1>{{ complaint.reference_number }}</h1>
                                         </div>
                                     </div>
                                     <div>
-                                        <span>Type: {{ formatReportType(complaint.report_type)}}</span>
+                                        <span>Type: {{ formatReportType(complaint.report_type) }}</span>
                                     </div>
                                     <div>
-                                        <span>Time: {{ formatDate(complaint.created_at)}}</span>
+                                        <span>Time: {{ formatDate(complaint.created_at) }}</span>
                                     </div>
                                 </div>
+                                <div class="flex justify-end w-full mt-5">
+                                    <div class="join">
+                                        <button class="join-item btn" @click="goToPage(currentPage-1)"  :disabled="currentPage === 1">«</button>
+                                        <button class="join-item btn" :disabled="true">Page {{currentPage}} of {{totalPage}}</button>
+                                        <button class="join-item btn" @click="goToPage(currentPage+1)" :disabled="currentPage === totalPage">»</button>
+                                    </div>
+                                </div>
+                                
                             </div>
                         </div>
                         <div v-else>
                             <div class="flex flex-col gap-2">
                                 <div class="bg-green-400 p-4 rounded-xl">
                                     <div class="flex justify-between">
-                                        <ion-skeleton-text :animated="true" style="width: 50px; height: 50px;"></ion-skeleton-text>
+                                        <ion-skeleton-text :animated="true"
+                                            style="width: 50px; height: 50px;"></ion-skeleton-text>
                                         <ion-skeleton-text :animated="true"></ion-skeleton-text>
                                     </div>
                                     <div>
@@ -159,7 +195,8 @@ const file = () => {
 
                                 <div class="bg-green-400 p-4 rounded-xl">
                                     <div class="flex justify-between">
-                                        <ion-skeleton-text :animated="true" style="width: 50px; height: 50px;"></ion-skeleton-text>
+                                        <ion-skeleton-text :animated="true"
+                                            style="width: 50px; height: 50px;"></ion-skeleton-text>
                                         <ion-skeleton-text :animated="true"></ion-skeleton-text>
                                     </div>
                                     <div>
@@ -171,7 +208,8 @@ const file = () => {
                                 </div>
                                 <div class="bg-green-400 p-4 rounded-xl">
                                     <div class="flex justify-between">
-                                        <ion-skeleton-text :animated="true" style="width: 50px; height: 50px;"></ion-skeleton-text>
+                                        <ion-skeleton-text :animated="true"
+                                            style="width: 50px; height: 50px;"></ion-skeleton-text>
                                         <ion-skeleton-text :animated="true"></ion-skeleton-text>
                                     </div>
                                     <div>
@@ -183,7 +221,8 @@ const file = () => {
                                 </div>
                                 <div class="bg-green-400 p-4 rounded-xl">
                                     <div class="flex justify-between">
-                                        <ion-skeleton-text :animated="true" style="width: 50px; height: 50px;"></ion-skeleton-text>
+                                        <ion-skeleton-text :animated="true"
+                                            style="width: 50px; height: 50px;"></ion-skeleton-text>
                                         <ion-skeleton-text :animated="true"></ion-skeleton-text>
                                     </div>
                                     <div>
@@ -195,7 +234,8 @@ const file = () => {
                                 </div>
                                 <div class="bg-green-400 p-4 rounded-xl">
                                     <div class="flex justify-between">
-                                        <ion-skeleton-text :animated="true" style="width: 50px; height: 50px;"></ion-skeleton-text>
+                                        <ion-skeleton-text :animated="true"
+                                            style="width: 50px; height: 50px;"></ion-skeleton-text>
                                         <ion-skeleton-text :animated="true"></ion-skeleton-text>
                                     </div>
                                     <div>
@@ -208,7 +248,7 @@ const file = () => {
                             </div>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
         </ion-content>

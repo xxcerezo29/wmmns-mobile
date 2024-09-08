@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { IonPage, IonHeader, IonToolbar, IonContent, IonTitle, IonButtons, IonMenuButton, IonProgressBar } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonContent, IonTitle, IonButtons, IonBackButton, IonProgressBar } from '@ionic/vue';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import PrimaryButton from '@/Components/daisyUI/PrimaryButton.vue';
 import { CapacitorHttp } from '@capacitor/core';
@@ -8,6 +8,8 @@ import { useAuthStore } from '@/stores/auth';
 import { TrashIcon } from '@heroicons/vue/24/outline';
 import InputError from '@/Components/InputError.vue';
 import { toast } from '@/function';
+import router from '@/router';
+import { caretBack } from 'ionicons/icons';
 
 const loading = ref(false);
 
@@ -56,13 +58,20 @@ const errors = ref<Record<string, string>>({});
 const uploadComplaint = async () => {
     try {
 
-        const data = new FormData(); // Use FormData for file uploads
-        
-        // Append form data fields
-        data.append('report_type', formData.value.report_type??'');
-        data.append('location', formData.value.location?? '');
-        data.append('description', formData.value.description?? '');
-        data.append('schedule_id', formData.value.schedule_id?? '');
+        loading.value = true;
+        const payload: any = {
+            report_type: formData.value.report_type ?? '',
+            location: formData.value.location ?? '',
+            description: formData.value.description ?? '',
+            schedule_id: formData.value.schedule_id ?? '',
+            photo_urls: []
+        };
+
+        const data = new FormData();
+        data.append('report_type', formData.value.report_type ?? '');
+        data.append('location', formData.value.location ?? '');
+        data.append('description', formData.value.description ?? '');
+        data.append('schedule_id', formData.value.schedule_id ?? '');
 
         // Append photos as blobs
         if (photos.value.length) {
@@ -72,7 +81,6 @@ const uploadComplaint = async () => {
             });
         }
 
-        loading.value = true;
 
         const options = {
             url: import.meta.env.VITE_WMMNS_API_URL + `/api/complaints/file/store`,
@@ -81,7 +89,7 @@ const uploadComplaint = async () => {
                 'Authorization': `Bearer ${auth.token}`,
                 'Content-Type': 'multipart/form-data',
             },
-            body: data
+            data
         }
 
         const response = await CapacitorHttp.post(options);
@@ -89,6 +97,7 @@ const uploadComplaint = async () => {
         if (response.status === 200 || response.status === 201) {
             loading.value = false;
             toast('top', 'Complaint uploaded successfully!');
+            router.push('complaints');
         } else {
             // Handle cases where the response status code is not 2xx
             loading.value = false;
@@ -116,7 +125,7 @@ const uploadComplaint = async () => {
         <ion-header :translucent="true">
             <ion-toolbar>
                 <ion-buttons slot="start">
-                    <ion-menu-button></ion-menu-button>
+                    <ion-back-button :icon="caretBack" default-href="/auth/complaints"></ion-back-button>
                 </ion-buttons>
                 <ion-title>File a complaint</ion-title>
             </ion-toolbar>

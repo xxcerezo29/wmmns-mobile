@@ -49,6 +49,21 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('../views/ProfilePage.vue'),
         meta: { requiresAuth: true },
       },
+      {
+        path: 'complaints',
+        component: () => import('../views/ComplaintsPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'complaints/view/:complaintId',
+        component: () => import('../views/ComplaintViewPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'complaints/file-a-compplaints',
+        component: () => import('../views/FileComplaintPage.vue'),
+        meta: { requiresAuth: true },
+      },
     ],
   },
   {

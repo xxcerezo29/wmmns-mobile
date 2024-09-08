@@ -14,11 +14,9 @@ import {
 import {
   mapOutline,
   calendarOutline,
-  homeOutline
+  homeOutline,
+  documentsOutline,
 } from 'ionicons/icons'
-import { useRoute } from 'vue-router';
-
-const route = useRoute();
 
 const auth = useAuthStore();
 
@@ -45,6 +43,10 @@ const auth = useAuthStore();
         <ion-tab-button tab="schedule" href="/auth/schedule">
           <ion-icon :icon="calendarOutline"/>
           <ion-label>Schedule</ion-label>
+        </ion-tab-button>
+        <ion-tab-button v-if="auth.type === 'resident'" tab="complaint" href="/auth/complaints">
+          <ion-icon :icon="documentsOutline"/>
+          <ion-label>Complaints</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>

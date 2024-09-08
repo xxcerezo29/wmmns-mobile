@@ -23,3 +23,14 @@ export interface Resident{
     country: string;
     email: string;
 }
+
+export interface Schedule {
+    id: number;
+    barangay: string;
+    day: string;
+    truck_id: number;
+    route_id: number;
+    time: string;
+    truck_plate: string;
+    route_name: string;
+}

@@ -137,19 +137,10 @@ import { CapacitorHttp } from '@capacitor/core';
 import { Cog6ToothIcon, MapIcon, MapPinIcon } from '@heroicons/vue/24/outline';
 import { IonPage, IonHeader, IonToolbar, IonContent, IonTitle, IonButtons, IonMenuButton, IonProgressBar, IonSkeletonText } from '@ionic/vue';
 import { onMounted, ref } from 'vue';
+import { Schedule } from '../Types/inerface';
 
-interface schedule {
-    id: number;
-    barangay: string;
-    day: string;
-    truck_id: number;
-    route_id: number;
-    time: string;
-    truck_plate: string;
-    route_name: string;
-}
 
-const schedules = ref<Array<schedule>>();
+const schedules = ref<Array<Schedule>>();
 
 const auth = useAuthStore();
 

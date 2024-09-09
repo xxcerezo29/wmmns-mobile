@@ -216,19 +216,18 @@ onMounted(async () => {
 
     }
 
-    if(route.name === '/driver/')
-        setTimeout(() => {
-            initMap();
-            const watchId = trackUserLocation();
+    setTimeout(() => {
+        initMap();
+        const watchId = trackUserLocation();
 
-            onBeforeUnmount(() => {
-                if (watchId) navigator.geolocation.clearWatch(watchId);
-                if (map) {
-                    map.remove();
-                    map = null
-                }
-            })
-        }, 100)
+        onBeforeUnmount(() => {
+            if (watchId) navigator.geolocation.clearWatch(watchId);
+            if (map) {
+                map.remove();
+                map = null
+            }
+        })
+    }, 100)
 
 })
 

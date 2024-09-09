@@ -97,12 +97,16 @@ const addWaypoints = (waypoints: Array<{ lat: number; lng: number }>) => {
     }).addTo(map);
 
     watch(() => marker?.getLatLng(), () => {
-        const finalWaypoint = latlngs[latlngs.length - 1];
+        if(!marker || !routingControl.value) return;
+
+        const finalWaypoint = routingControl.value.getPlan().getWaypoints().slice(-1)[0].latlng;
         const userLocation = marker?.getLatLng();
-        if (userLocation && userLocation.distanceTo(finalWaypoint) < 20) {
-            isAtFinalDestination.value = true;
-        } else {
-            isAtFinalDestination.value = true;
+        if (userLocation && finalWaypoint) {
+            const distanceToFilnalWaypoint = userLocation.distanceTo(finalWaypoint);
+            const thresholdDistance = 20;
+
+
+            isAtFinalDestination.value = distanceToFilnalWaypoint < thresholdDistance;
         }
     }, { immediate: true })
 }
@@ -254,7 +258,7 @@ watch(() => props.waypoints, (newWayPoints) => {
             <ion-button class="w-full" @click="markAsDone" :disabled="!isAtFinalDestination">
                 Done
             </ion-button>
-            <ion-button class="w-full" @click="cancel" :disabled="!isAtFinalDestination">
+            <ion-button class="w-full" @click="cancel" >
                 Cancel
             </ion-button>
         </div>

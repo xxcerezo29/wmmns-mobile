@@ -108,8 +108,6 @@ router.beforeEach((to, from, next) => {
     if(pusher && channel){
         console.log('Unbinding from Pusher and disconnecting...');
         channel.unbind('TrackGarbageTruck');
-        pusher.disconnect();
-        console.log('Pusher connection disconnected');
     }
     next();
 })

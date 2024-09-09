@@ -14,6 +14,7 @@ const props = defineProps<{
 
 
 const mapContainer = ref<HTMLElement | null>(null);
+const route = useRoute();
 
 import riderIconURL from '@/Assets/garbage-truck.png';
 import { Capacitor, CapacitorHttp } from '@capacitor/core';
@@ -21,6 +22,7 @@ import { IonButton, modalController } from '@ionic/vue';
 import FinishedModal from '../FinishedModal.vue';
 import CancelModal from '../CancelModal.vue';
 import { useAuthStore } from '@/stores/auth';
+import { useRoute } from 'vue-router';
 
 const message = ref('This modal example uses the modalController to present and dismiss modals.');
 
@@ -214,18 +216,19 @@ onMounted(async () => {
 
     }
 
-    setTimeout(() => {
-        initMap();
-        const watchId = trackUserLocation();
+    if(route.name === '/driver/')
+        setTimeout(() => {
+            initMap();
+            const watchId = trackUserLocation();
 
-        onBeforeUnmount(() => {
-            if (watchId) navigator.geolocation.clearWatch(watchId);
-            if (map) {
-                map.remove();
-                map = null
-            }
-        })
-    }, 100)
+            onBeforeUnmount(() => {
+                if (watchId) navigator.geolocation.clearWatch(watchId);
+                if (map) {
+                    map.remove();
+                    map = null
+                }
+            })
+        }, 100)
 
 })
 

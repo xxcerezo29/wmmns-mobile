@@ -14,9 +14,13 @@ import { Capacitor } from '@capacitor/core';
 import Pusher from 'pusher-js';
 import { useAuthStore } from '@/stores/auth';
 import { Driver } from '@/Types/inerface';
+import { useRoute, useRouter } from 'vue-router';
 
 let map: L.Map | null = null;
 const driverMarkers: Map<number, L.Marker> = new Map();
+
+let pusher: Pusher | null = null;
+let channel: Pusher.Channel | null = null;
 
 const initMap = () => {
     if (mapContainer.value && !map) {
@@ -43,11 +47,11 @@ const riderIcon = L.icon({
     popupAnchor: [0, -50],
 });
 const updateDriverLocation = (driverId: number, location: { lat: number; lng: number }, plateNumber: string) => {
-    if(!map){
+    if (!map) {
         console.log('Map is not initialized');
         return;
     }
-    if(!location || typeof location.lat !== 'number' || typeof location.lng !== 'number'){
+    if (!location || typeof location.lat !== 'number' || typeof location.lng !== 'number') {
         console.error('Invalid location data: ', location);
         return;
     }
@@ -78,28 +82,36 @@ onMounted(async () => {
 
     const auth = useAuthStore();
 
-    const pusher = new Pusher('2b9e426ef902f27d56e7', {
+    pusher = new Pusher('2b9e426ef902f27d56e7', {
         cluster: 'ap1',
     })
 
-    const channel = pusher.subscribe(auth.user?.barangay+'-track-garbage-truck');
+    channel = pusher.subscribe(auth.user?.barangay + '-track-garbage-truck');
 
-    channel.bind('TrackGarbageTruck', (data: { location: { lat: number; lng: number }, truck:  any, user: Driver }) => {
-        updateDriverLocation(data.user.id, { lat: data.location.lat, lng: data.location.lng},  data.truck.plate_number);
+    channel.bind('TrackGarbageTruck', (data: { location: { lat: number; lng: number }, truck: any, user: Driver }) => {
+        updateDriverLocation(data.user.id, { lat: data.location.lat, lng: data.location.lng }, data.truck.plate_number);
         console.log('Received data:', data);
     });
 
     setTimeout(() => {
         initMap();
-
-        onBeforeUnmount(() => {
-
-            if (map)
-                map.remove();
-        })
     }, 100)
+})
 
+onBeforeUnmount(() => {
+    if (map)
+        map.remove();
+})
+const router = useRouter();
 
+router.beforeEach((to, from, next) => {
+    if(pusher && channel){
+        console.log('Unbinding from Pusher and disconnecting...');
+        channel.unbind('TrackGarbageTruck');
+        pusher.disconnect();
+        console.log('Pusher connection disconnected');
+    }
+    next();
 })
 </script>
 

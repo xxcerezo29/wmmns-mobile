@@ -42,6 +42,21 @@ const takePhoto = async () => {
     }
 };
 
+const chooseFromGallery = async () => {
+    try{
+        const result = await Camera.getPhoto({
+            quality: 90,
+            allowEditing: false,
+            resultType: CameraResultType.Base64,
+            source: CameraSource.Photos
+        });
+
+        photos.value.push('data:image/jpeg;base64,'+result.base64String);
+    }catch(error) {
+        console.error('Error choosing photo from gallery:',error);
+    }
+}
+
 const removePhoto = (index: number) => {
     photos.value.splice(index, 1);
 };
@@ -176,7 +191,7 @@ const uploadComplaint = async () => {
                         <div class="flex justify-center w-full gap-2 mt-5">
                             <PrimaryButton @click="takePhoto" class="!bg-green-600">Take a Photo
                             </PrimaryButton>
-                            <PrimaryButton @click="takePhoto" class="!bg-green-600">Choose from Gallery
+                            <PrimaryButton @click="chooseFromGallery" class="!bg-green-600">Choose from Gallery
                             </PrimaryButton>
                         </div>
                         <div class="py-4 mt-5">

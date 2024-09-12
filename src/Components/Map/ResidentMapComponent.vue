@@ -11,7 +11,7 @@ const mapContainer = ref<HTMLElement | null>(null);
 
 import riderIconURL from '@/Assets/garbage-truck.png';
 import { Capacitor } from '@capacitor/core';
-import Pusher from 'pusher-js';
+import Pusher, { Channel } from 'pusher-js';
 import { useAuthStore } from '@/stores/auth';
 import { Driver } from '@/Types/inerface';
 import { useRoute, useRouter } from 'vue-router';
@@ -20,7 +20,7 @@ let map: L.Map | null = null;
 const driverMarkers: Map<number, L.Marker> = new Map();
 
 let pusher: Pusher | null = null;
-let channel: Pusher.Channel | null = null;
+let channel: Channel | null = null;
 
 const initMap = () => {
     if (mapContainer.value && !map) {

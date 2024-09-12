@@ -1,4 +1,6 @@
 import { PushNotifications } from "@capacitor/push-notifications";
+import { useAuthStore } from "./stores/auth";
+import { CapacitorHttp } from "@capacitor/core";
 
 export const initializePushNotifications = async () => {
   await addListeners();
@@ -6,22 +8,45 @@ export const initializePushNotifications = async () => {
   await registerNotifications();
 };
 
+const auth = useAuthStore();
+
 const addListeners = async () => {
-  await PushNotifications.addListener("registration", (token) => {
-    alert("Registration Token: " + token.value);
-    console.log("Registration Token: " , token.value);
+  await PushNotifications.addListener("registration", async (token) => {
+
+    console.log(token)
+
+    const options = {
+      url: import.meta.env.VITE_WMMNS_API_URL + `/api/store/device`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${auth.token}`,
+      },
+      data: {
+          token: token.value
+      }
+    };
+    const response = await CapacitorHttp.post(options);
+
+    if(response.data.success === true){
+      console.log("Registration Token: ", token.value);
+    }else{
+      console.log("Registration Token: ", response.data.message);
+    }
+
+    // alert("Registration Token: " + token.value);
+    
   });
 
   await PushNotifications.addListener("registrationError", (err) => {
-    alert("Registration error: "+ err.error);
-    console.error("Registration error: ", err.error)
+    // alert("Registration error: "+ err.error);
+    console.error("Registration error: ", err.error);
   });
 
   await PushNotifications.addListener(
     "pushNotificationReceived",
     (notification) => {
-        alert("Push notification received: "+ notification);
-        console.log("Push notification received: "+ notification)
+      // alert("Push notification received: "+ notification);
+      console.log("Push notification received: " + notification);
     }
   );
 

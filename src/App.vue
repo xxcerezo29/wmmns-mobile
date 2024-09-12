@@ -14,10 +14,6 @@ import { onMounted } from 'vue';
 
 
 onMounted(async() => {
-    try{
-      await initializePushNotifications();
-    }catch(error){
-      alert('Failed to initialize push notifications: '+ error);
-    }
+    
 })
 </script>

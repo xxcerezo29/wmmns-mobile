@@ -14,7 +14,6 @@ const props = defineProps<{
 
 
 const mapContainer = ref<HTMLElement | null>(null);
-const route = useRoute();
 
 import riderIconURL from '@/Assets/garbage-truck.png';
 import { Capacitor, CapacitorHttp } from '@capacitor/core';
@@ -22,7 +21,6 @@ import { IonButton, modalController } from '@ionic/vue';
 import FinishedModal from '../FinishedModal.vue';
 import CancelModal from '../CancelModal.vue';
 import { useAuthStore } from '@/stores/auth';
-import { useRoute } from 'vue-router';
 
 const message = ref('This modal example uses the modalController to present and dismiss modals.');
 
@@ -59,7 +57,7 @@ const openCancelModal = async () => {
 let map: L.Map | null = null;
 let marker: L.Marker | null = null;
 let circle: L.Circle | null = null;
-const routingControl = ref<L.Control | null>(null);
+const routingControl = ref<L.Routing.Control | null>(null);
 const isAtFinalDestination = ref(false);
 const auth = useAuthStore();
 
@@ -99,7 +97,8 @@ const addWaypoints = (waypoints: Array<{ lat: number; lng: number }>) => {
     watch(() => marker?.getLatLng(), () => {
         if(!marker || !routingControl.value) return;
 
-        const finalWaypoint = routingControl.value.getPlan().getWaypoints().slice(-1)[0].latlng;
+        const finalWaypoint = routingControl.value.getPlan().getWaypoints().slice(-1)[0].latLng;
+
         const userLocation = marker?.getLatLng();
         if (userLocation && finalWaypoint) {
             const distanceToFilnalWaypoint = userLocation.distanceTo(finalWaypoint);
@@ -176,6 +175,10 @@ const trackUserLocation = () => {
             console.error('Error sending location to server:', error);
         }
     }
+
+    navigator.geolocation.getCurrentPosition((position) => {
+        updateLocation(position as GeolocationPosition)
+    })
     const watchId = navigator.geolocation.watchPosition(
         async (position) => {
             const latlng = L.latLng(position.coords.latitude, position.coords.longitude);

@@ -57,7 +57,7 @@ const openCancelModal = async () => {
 let map: L.Map | null = null;
 let marker: L.Marker | null = null;
 let circle: L.Circle | null = null;
-const routingControl = ref<L.Control | null>(null);
+const routingControl = ref<L.Routing.Control | null>(null);
 const isAtFinalDestination = ref(false);
 const auth = useAuthStore();
 
@@ -95,12 +95,17 @@ const addWaypoints = (waypoints: Array<{ lat: number; lng: number }>) => {
     }).addTo(map);
 
     watch(() => marker?.getLatLng(), () => {
-        const finalWaypoint = latlngs[latlngs.length - 1];
+        if(!marker || !routingControl.value) return;
+
+        const finalWaypoint = routingControl.value.getPlan().getWaypoints().slice(-1)[0].latLng;
+
         const userLocation = marker?.getLatLng();
-        if (userLocation && userLocation.distanceTo(finalWaypoint) < 20) {
-            isAtFinalDestination.value = true;
-        } else {
-            isAtFinalDestination.value = true;
+        if (userLocation && finalWaypoint) {
+            const distanceToFilnalWaypoint = userLocation.distanceTo(finalWaypoint);
+            const thresholdDistance = 20;
+
+
+            isAtFinalDestination.value = distanceToFilnalWaypoint < thresholdDistance;
         }
     }, { immediate: true })
 }
@@ -170,6 +175,10 @@ const trackUserLocation = () => {
             console.error('Error sending location to server:', error);
         }
     }
+
+    navigator.geolocation.getCurrentPosition((position) => {
+        updateLocation(position as GeolocationPosition)
+    })
     const watchId = navigator.geolocation.watchPosition(
         async (position) => {
             const latlng = L.latLng(position.coords.latitude, position.coords.longitude);
@@ -252,7 +261,7 @@ watch(() => props.waypoints, (newWayPoints) => {
             <ion-button class="w-full" @click="markAsDone" :disabled="!isAtFinalDestination">
                 Done
             </ion-button>
-            <ion-button class="w-full" @click="cancel" :disabled="!isAtFinalDestination">
+            <ion-button class="w-full" @click="cancel" >
                 Cancel
             </ion-button>
         </div>

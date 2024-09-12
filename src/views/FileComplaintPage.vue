@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { IonPage, IonHeader, IonToolbar, IonContent, IonTitle, IonButtons, IonBackButton, IonProgressBar } from '@ionic/vue';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import PrimaryButton from '@/Components/daisyUI/PrimaryButton.vue';
@@ -7,7 +7,7 @@ import { CapacitorHttp } from '@capacitor/core';
 import { useAuthStore } from '@/stores/auth';
 import { TrashIcon } from '@heroicons/vue/24/outline';
 import InputError from '@/Components/InputError.vue';
-import { toast } from '@/function';
+import {formatTime, toast } from '@/function';
 import router from '@/router';
 import { caretBack } from 'ionicons/icons';
 
@@ -15,6 +15,25 @@ const loading = ref(false);
 
 const auth = useAuthStore();
 const photos = ref<string[]>([]);
+const schedule = ref<Array<{
+    id: number;
+    barangay: string;
+    day: string;
+    truck_id: number;
+    route_id: number;
+    time: string;
+    truck_plate: string;
+    truck: {
+        id: number;
+        barangay: string;
+        plate_number: string;
+    }
+    route: {
+        id: number;
+        barangay: string;
+        name: string;
+    }
+}>>();
 const formData = ref<{
     report_type: string,
     schedule_id: string,
@@ -41,6 +60,21 @@ const takePhoto = async () => {
         console.error('Error taking photo:', error);
     }
 };
+
+const chooseFromGallery = async () => {
+    try{
+        const result = await Camera.getPhoto({
+            quality: 90,
+            allowEditing: false,
+            resultType: CameraResultType.Base64,
+            source: CameraSource.Photos
+        });
+
+        photos.value.push('data:image/jpeg;base64,'+result.base64String);
+    }catch(error) {
+        console.error('Error choosing photo from gallery:',error);
+    }
+}
 
 const removePhoto = (index: number) => {
     photos.value.splice(index, 1);
@@ -119,6 +153,37 @@ const uploadComplaint = async () => {
         toast('top', 'An unexpected error occurred. Please try again.');
     }
 }
+
+onMounted(async() => {
+    try{
+        loading.value = true;
+
+        const options= {
+            url: import.meta.env.VITE_WMMNS_API_URL + `/api/schedule/list`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.token}`
+            }
+        }
+
+        const response = await CapacitorHttp.get(options);
+
+        if(response.data.success === true)
+        {
+            schedule.value = response.data.schedules
+        }else{
+            alert(response.data.message)
+        }
+        
+
+    }catch(error: any){
+        if(error.response){
+            // s
+        }
+    }finally {
+        loading.value = false;
+    }
+})
 </script>
 <template>
     <ion-page id="main-content">
@@ -151,15 +216,16 @@ const uploadComplaint = async () => {
                                 <span class="label-text">Schedule</span>
                             </div>
                             <select v-model="formData.schedule_id" class="select select-bordered">
-                                <option disabled selected value="">Pick select type</option>
-                                <option value="missed_collection">Missed Collection</option>
-                                <option value="illegal_dumping">Illegal Dumping</option>
+                                <option disabled selected value="">Pick select Schedule</option>
+                                <option v-for="(sched, index) in schedule" :key="index" :value="sched.id" class="capitalize">
+                                    {{ sched.day }}-{{ formatTime(sched.time) }} : {{ sched.route.name }} - {{ sched.truck.plate_number }}
+                                </option>
                             </select>
                             <InputError :message="errors.schedule_id" class="mt-2" />
                         </label>
                         <label v-if="formData.report_type === 'illegal_dumping'" class="form-control w-full">
                             <div class="label">
-                                <span class="label-text">Location</span>
+                                <span class="label-text">Location/Purok</span>
                             </div>
                             <input v-model="formData.location" type="text" placeholder="Type here"
                                 class="input input-bordered w-full" />
@@ -176,7 +242,7 @@ const uploadComplaint = async () => {
                         <div class="flex justify-center w-full gap-2 mt-5">
                             <PrimaryButton @click="takePhoto" class="!bg-green-600">Take a Photo
                             </PrimaryButton>
-                            <PrimaryButton @click="takePhoto" class="!bg-green-600">Choose from Gallery
+                            <PrimaryButton @click="chooseFromGallery" class="!bg-green-600">Choose from Gallery
                             </PrimaryButton>
                         </div>
                         <div class="py-4 mt-5">

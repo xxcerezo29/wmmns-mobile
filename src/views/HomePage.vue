@@ -138,6 +138,7 @@ import { Cog6ToothIcon, MapIcon, MapPinIcon } from '@heroicons/vue/24/outline';
 import { IonPage, IonHeader, IonToolbar, IonContent, IonTitle, IonButtons, IonMenuButton, IonProgressBar, IonSkeletonText } from '@ionic/vue';
 import { onMounted, ref } from 'vue';
 import { Schedule } from '../Types/inerface';
+import { initializePushNotifications } from '@/push-notifications';
 
 
 const schedules = ref<Array<Schedule>>();
@@ -148,6 +149,11 @@ const loading = ref(false);
 
 
 onMounted(async () => {
+    try{
+      await initializePushNotifications();
+    }catch(error){
+      alert('Failed to initialize push notifications: '+ error);
+    }
     try{
         loading.value = true;
         const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];

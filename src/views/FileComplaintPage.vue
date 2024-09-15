@@ -40,10 +40,10 @@ const formData = ref<{
     location: string,
     description: string,
 }>({
-    report_type: '',
-    schedule_id: '',
-    location: '',
-    description: '',
+    report_type: "",
+    schedule_id: "-",
+    location: " ",
+    description: "",
 });
 
 const takePhoto = async () => {
@@ -93,17 +93,13 @@ const uploadComplaint = async () => {
     try {
 
         loading.value = true;
-        const payload: any = {
-            report_type: formData.value.report_type ?? '',
-            location: formData.value.location ?? '',
-            description: formData.value.description ?? '',
-            schedule_id: formData.value.schedule_id ?? '',
-            photo_urls: []
-        };
 
         const data = new FormData();
+
+        if(formData.value.report_type === "missed_collection")
+            formData.value.location = "No Location";
         data.append('report_type', formData.value.report_type ?? '');
-        data.append('location', formData.value.location ?? '');
+        data.append('location', formData.value.location);
         data.append('description', formData.value.description ?? '');
         data.append('schedule_id', formData.value.schedule_id ?? '');
 
@@ -131,7 +127,7 @@ const uploadComplaint = async () => {
         if (response.status === 200 || response.status === 201) {
             loading.value = false;
             toast('top', 'Complaint uploaded successfully!');
-            router.push('complaints');
+            router.push('/auth/complaints');
         } else {
             // Handle cases where the response status code is not 2xx
             loading.value = false;

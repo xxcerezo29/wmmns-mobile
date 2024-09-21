@@ -88,14 +88,11 @@ jobs:
           cd android/app/build/outputs/apk/release
           ls -l
 
-      - name: Remove Previous APK (via FTP)
+      - name: Delete Previous APK (via FTP)
         run: |
-          echo "open ${{ env.FTP_HOST }}"
-          user ${{ env.FTP_USERNAME }} ${{ env.FTP_PASSWORD }}
-          delete /public/apk/app-release.apk
-          bye" > ftp_commands.txt
-          ftp -n < ftp_commands.txt
+            curl -u ${{ env.FTP_USERNAME }}:${{ env.FTP_PASSWORD }} -X DELE ftp://${{ env.FTP_HOST }}/public/apk/app-release.apk
 
+            
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:

@@ -17,6 +17,12 @@ const config: CapacitorConfig = {
       spinnerColor: '#999999',
       splashFullScreen: true,
       splashImmersive: true
+    },
+    LiveUpdates: {
+      appId: '0dc31600',
+      channel: 'dev',
+      autoUpdateMethod: 'background',
+      maxVersions: 2
     }
   }
 };

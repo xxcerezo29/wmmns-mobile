@@ -77,8 +77,6 @@ const start = async (id: number) => {
         
         const response = await CapacitorHttp.post(options);
 
-        alert(response);
-
         console.log(response);
         
         if(response.data.roam)

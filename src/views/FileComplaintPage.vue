@@ -7,9 +7,10 @@ import { CapacitorHttp } from '@capacitor/core';
 import { useAuthStore } from '@/stores/auth';
 import { TrashIcon } from '@heroicons/vue/24/outline';
 import InputError from '@/Components/InputError.vue';
-import {formatTime, toast } from '@/function';
+import { formatTime, toast } from '@/function';
 import router from '@/router';
 import { caretBack } from 'ionicons/icons';
+import { Permissions } from '@capacitor/core';
 
 const loading = ref(false);
 
@@ -41,7 +42,7 @@ const formData = ref<{
     description: string,
 }>({
     report_type: "",
-    schedule_id: "-",
+    schedule_id: "",
     location: " ",
     description: "",
 });
@@ -62,7 +63,7 @@ const takePhoto = async () => {
 };
 
 const chooseFromGallery = async () => {
-    try{
+    try {
         const result = await Camera.getPhoto({
             quality: 90,
             allowEditing: false,
@@ -70,9 +71,9 @@ const chooseFromGallery = async () => {
             source: CameraSource.Photos
         });
 
-        photos.value.push('data:image/jpeg;base64,'+result.base64String);
-    }catch(error) {
-        console.error('Error choosing photo from gallery:',error);
+        photos.value.push('data:image/jpeg;base64,' + result.base64String);
+    } catch (error) {
+        console.error('Error choosing photo from gallery:', error);
     }
 }
 
@@ -94,32 +95,23 @@ const uploadComplaint = async () => {
 
         loading.value = true;
 
-        const data = new FormData();
-
-        if(formData.value.report_type === "missed_collection")
-            formData.value.location = "No Location";
-        data.append('report_type', formData.value.report_type ?? '');
-        data.append('location', formData.value.location);
-        data.append('description', formData.value.description ?? '');
-        data.append('schedule_id', formData.value.schedule_id ?? '');
-
-        // Append photos as blobs
-        if (photos.value.length) {
-            photos.value.forEach((photo, index) => {
-                const blob = base64ToBlob(photo, 'image/jpeg');
-                data.append(`photo_urls[]`, blob, `photo_${index}.jpg`);
-            });
+        const data = {
+            report_type: formData.value.report_type,
+            location: formData.value.report_type === "missed_collection" ? "No Location" : formData.value.location,
+            description: formData.value.description,
+            schedule_id: formData.value.schedule_id,
+            photo_urls: photos.value.map(photo => photo.split(',')[1]),
         }
 
 
         const options = {
             url: import.meta.env.VITE_WMMNS_API_URL + `/api/complaints/file/store`,
             headers: {
+                'Content-Type': 'application/json',
                 'Accept': 'application/json',
                 'Authorization': `Bearer ${auth.token}`,
-                'Content-Type': 'multipart/form-data',
             },
-            data
+            data: data
         }
 
         const response = await CapacitorHttp.post(options);
@@ -150,11 +142,11 @@ const uploadComplaint = async () => {
     }
 }
 
-onMounted(async() => {
-    try{
+onMounted(async () => {
+    try {
         loading.value = true;
 
-        const options= {
+        const options = {
             url: import.meta.env.VITE_WMMNS_API_URL + `/api/schedule/list`,
             headers: {
                 'Content-Type': 'application/json',
@@ -164,19 +156,18 @@ onMounted(async() => {
 
         const response = await CapacitorHttp.get(options);
 
-        if(response.data.success === true)
-        {
+        if (response.data.success === true) {
             schedule.value = response.data.schedules
-        }else{
+        } else {
             alert(response.data.message)
         }
-        
 
-    }catch(error: any){
-        if(error.response){
+
+    } catch (error: any) {
+        if (error.response) {
             // s
         }
-    }finally {
+    } finally {
         loading.value = false;
     }
 })
@@ -213,8 +204,10 @@ onMounted(async() => {
                             </div>
                             <select v-model="formData.schedule_id" class="select select-bordered">
                                 <option disabled selected value="">Pick select Schedule</option>
-                                <option v-for="(sched, index) in schedule" :key="index" :value="sched.id" class="capitalize">
-                                    {{ sched.day }}-{{ formatTime(sched.time) }} : {{ sched.route.name }} - {{ sched.truck.plate_number }}
+                                <option v-for="(sched, index) in schedule" :key="index" :value="sched.id"
+                                    class="capitalize">
+                                    {{ sched.day }}-{{ formatTime(sched.time) }} : {{ sched.route.name }} - {{
+                                    sched.truck.plate_number }}
                                 </option>
                             </select>
                             <InputError :message="errors.schedule_id" class="mt-2" />

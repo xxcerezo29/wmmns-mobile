@@ -31,6 +31,8 @@ export interface Schedule {
     truck_id: number;
     route_id: number;
     time: string;
-    truck_plate: string;
+    route: Route;
+    truck: Truck;
+    plate_number: string;
     route_name: string;
 }

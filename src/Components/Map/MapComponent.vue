@@ -21,6 +21,7 @@ import { IonButton, modalController } from '@ionic/vue';
 import FinishedModal from '../FinishedModal.vue';
 import CancelModal from '../CancelModal.vue';
 import { useAuthStore } from '@/stores/auth';
+import { useRoamStore } from '@/stores/roam';
 
 const message = ref('This modal example uses the modalController to present and dismiss modals.');
 
@@ -60,6 +61,7 @@ let circle: L.Circle | null = null;
 const routingControl = ref<L.Routing.Control | null>(null);
 const isAtFinalDestination = ref(false);
 const auth = useAuthStore();
+const roam = useRoamStore();
 
 const initMap = () => {
     if (mapContainer.value && !map) {
@@ -170,6 +172,8 @@ const trackUserLocation = () => {
 
             const response = await CapacitorHttp.post(options);
 
+
+
             console.log('Location sent to server successfully.');
         } catch (error) {
             console.error('Error sending location to server:', error);
@@ -195,9 +199,9 @@ const trackUserLocation = () => {
 
             map?.setView(latlng, map.getZoom(), { animate: true });
 
-            setInterval(() => {
-                updateLocation(position);
-            }, 300000)
+            updateLocation(position);
+
+            roam.startTracking(watchId);
         },
         (error) => {
             console.log(error);
@@ -228,7 +232,10 @@ onMounted(async () => {
         const watchId = trackUserLocation();
 
         onBeforeUnmount(() => {
-            if (watchId) navigator.geolocation.clearWatch(watchId);
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                console.log('clear tracking location');
+            }
             if (map) {
                 map.remove();
                 map = null

@@ -27,7 +27,7 @@
                                             <MapIcon class="w-7" />
                                             <h1>{{schedule.route_name}}</h1>
                                         </div>
-                                        <div class="dropdown dropdown-end">
+                                        <!-- <div class="dropdown dropdown-end">
                                             <div tabindex="0" role="button">
                                                 <button class="bg-green-100 rounded-full p-4">
                                                     <Cog6ToothIcon class="w-7" />
@@ -38,11 +38,11 @@
                                                 <li><a class="!text-black">View</a></li>
                                                 <li><a class="!text-black">Start</a></li>
                                             </ul>
-                                        </div>
+                                        </div> -->
     
                                     </div>
                                     <div>
-                                        <span>Truck: {{ schedule.truck_plate}}</span>
+                                        <span>Truck: {{ schedule.plate_number}}</span>
                                     </div>
                                     <div>
                                         <span>{{formatTime(schedule.time)}}</span>
@@ -134,7 +134,7 @@ import TruckListComponent from '@/Components/TruckListComponent.vue';
 import { formatTime } from '@/function';
 import { useAuthStore } from '@/stores/auth';
 import { CapacitorHttp } from '@capacitor/core';
-import { Cog6ToothIcon, MapIcon, MapPinIcon } from '@heroicons/vue/24/outline';
+import {MapIcon, MapPinIcon } from '@heroicons/vue/24/outline';
 import { IonPage, IonHeader, IonToolbar, IonContent, IonTitle, IonButtons, IonMenuButton, IonProgressBar, IonSkeletonText } from '@ionic/vue';
 import { onMounted, ref } from 'vue';
 import { Schedule } from '../Types/inerface';

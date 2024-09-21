@@ -2,6 +2,9 @@ name: Build Ionic Vue for Android
 
 env:
   WEB_APP_URL: http://35.240.198.68/api/
+  FTP_HOST: 35.240.198.68
+  FTP_USERNAME: ftp_wmmns
+  FTP_PASSWORD: '@_Cerezo0129'
 
 on:
   release:
@@ -85,8 +88,25 @@ jobs:
           cd android/app/build/outputs/apk/release
           ls -l
 
+      - name: Remove Previous APK (via FTP)
+        run: |
+          echo "open ${{ env.FTP_HOST }}"
+          user ${{ env.FTP_USERNAME }} ${{ env.FTP_PASSWORD }}
+          delete /public/apk/app-release.apk
+          bye" > ftp_commands.txt
+          ftp -n < ftp_commands.txt
+
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: android-apk
           path: android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload APK to Server
+        uses: SamKirkland/FTP-Deploy-Action@4.1.0
+        with: 
+          server: ${{ env.FTP_HOST}}
+          username: ${{ env.FTP_USERNAME}}
+          password: ${{ env.FTP_PASSWORD }}
+          local-dir: android/app/build/outputs/apk/release/
+          server-dir: /public/apk/

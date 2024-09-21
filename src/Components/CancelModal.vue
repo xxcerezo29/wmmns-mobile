@@ -6,6 +6,7 @@ import { useRoamStore } from '@/stores/roam';
 import { CapacitorHttp } from '@capacitor/core';
 import {
     modalController,
+    IonButton
 } from '@ionic/vue';
 import { ref } from 'vue';
 const name = ref();
@@ -26,8 +27,9 @@ const confirm = async () => {
                 'Authorization': `Bearer ${auth.token}`
             },
         }
-
         const response = await CapacitorHttp.post(options);
+        roam.stopTrackingLocation();
+        
     }catch (error) {
         console.error('Failed to end roam:', error);
     }finally {
@@ -36,7 +38,7 @@ const confirm = async () => {
         roam.setEmpty();
 
         router.push('/auth/home');
-    modalController.dismiss(name.value, 'confirm');
+        modalController.dismiss(name.value, 'confirm');
     }
 
     

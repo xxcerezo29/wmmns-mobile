@@ -90,7 +90,7 @@ const removePhoto = (index: number) => {
     photos.value.splice(index, 1);
 };
 
-function convertToBase64(file) {
+function convertToBase64(file: any) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result); // The base64 string will be here

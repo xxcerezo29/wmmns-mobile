@@ -55,9 +55,14 @@ const takePhoto = async () => {
             source: CameraSource.Camera
         });
 
-        photos.value.push('data:image/jpeg;base64,' + result.base64String);
+        if (result.base64String) {
+            photos.value.push('data:image/jpeg;base64,' + result.base64String);
+        } else {
+            toast('top', 'Failed to capture photo.');
+        }
     } catch (error) {
         console.error('Error taking photo:', error);
+        toast('top', 'Error taking photo. Please try again.');
     }
 };
 
@@ -70,22 +75,29 @@ const chooseFromGallery = async () => {
             source: CameraSource.Photos
         });
 
-        photos.value.push('data:image/jpeg;base64,' + result.base64String);
+        if (result.base64String) {
+            photos.value.push('data:image/jpeg;base64,' + result.base64String);
+        } else {
+            toast('top', 'Failed to load photo from gallery.');
+        }
     } catch (error) {
         console.error('Error choosing photo from gallery:', error);
+        toast('top', 'Error selecting photo from gallery. Please try again.');
     }
-}
+};
 
 const removePhoto = (index: number) => {
     photos.value.splice(index, 1);
 };
 
-const base64ToBlob = (base64Data: string, contentType: string) => {
-    const byteCharacters = atob(base64Data.split(',')[1]);
-    const byteNumbers = Array.from(byteCharacters, c => c.charCodeAt(0));
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], { type: contentType });
-};
+function convertToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result); // The base64 string will be here
+        reader.onerror = reject;
+        reader.readAsDataURL(file);  // This adds the correct MIME type to the string
+    });
+}
 
 const errors = ref<Record<string, string>>({});
 
@@ -99,7 +111,7 @@ const uploadComplaint = async () => {
             location: formData.value.report_type === "missed_collection" ? "No Location" : formData.value.location,
             description: formData.value.description,
             schedule_id: formData.value.schedule_id,
-            photo_urls: photos.value.map(photo => photo.split(',')[1]),
+            photo_urls: photos.value.map(photo => `data:image/jpeg;base64,${photo.split(',')[1]}`),
         }
 
 
@@ -148,7 +160,8 @@ onMounted(async () => {
         const options = {
             url: import.meta.env.VITE_WMMNS_API_URL + `/api/schedule/list`,
             headers: {
-                'Content-Type': 'application/json',
+                'Accept' : 'application/json',
+                'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${auth.token}`
             }
         }

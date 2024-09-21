@@ -18,12 +18,6 @@ const config: CapacitorConfig = {
       splashFullScreen: true,
       splashImmersive: true
     },
-    LiveUpdates: {
-      appId: '0dc31600',
-      channel: 'dev',
-      autoUpdateMethod: 'background',
-      maxVersions: 2
-    }
   }
 };
 

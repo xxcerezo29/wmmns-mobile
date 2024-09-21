@@ -87,23 +87,10 @@ jobs:
         run: |
           cd android/app/build/outputs/apk/release
           ls -l
-
-      - name: Delete Previous APK (via FTP)
-        run: |
-            curl -u ${{ env.FTP_USERNAME }}:${{ env.FTP_PASSWORD }} -X DELE ftp://${{ env.FTP_HOST }}/public/apk/app-release.apk
-
-            
+    
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: android-apk
           path: android/app/build/outputs/apk/release/app-release.apk
 
-      - name: Upload APK to Server
-        uses: SamKirkland/FTP-Deploy-Action@4.1.0
-        with: 
-          server: ${{ env.FTP_HOST}}
-          username: ${{ env.FTP_USERNAME}}
-          password: ${{ env.FTP_PASSWORD }}
-          local-dir: android/app/build/outputs/apk/release/
-          server-dir: /public/apk/

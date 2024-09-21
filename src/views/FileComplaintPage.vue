@@ -10,7 +10,6 @@ import InputError from '@/Components/InputError.vue';
 import { formatTime, toast } from '@/function';
 import router from '@/router';
 import { caretBack } from 'ionicons/icons';
-import { Permissions } from '@capacitor/core';
 
 const loading = ref(false);
 

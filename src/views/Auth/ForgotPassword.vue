@@ -1,54 +1,44 @@
 <script setup lang="ts">
-import PrimaryButton from '@/Components/daisyUI/PrimaryButton.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import api from '@/services/api';
+import router from '@/router';
 import { useAuthStore } from '@/stores/auth';
-import { IonPage, IonProgressBar } from '@ionic/vue';
 import { ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-
-const authStore = useAuthStore();
-const router = useRouter();
+import { IonPage, IonProgressBar } from '@ionic/vue';
 
 const form = ref<{
     email: string;
-    password: string;
     type: string;
-    remember: boolean
 }>(
     {
         email: '',
-        password: '',
         type: '',
-        remember: false
     }
 );
 
+const authStore = useAuthStore();
+
 const loading = ref(false);
 
-
-
-const login = async () => {
+const forgot = async () => {
     loading.value = true;
     try {
+        const response = await authStore.forgot(form.value.email, form.value.type)
+        if (response === true) {
+            router.push({
+                name: 'reset-password',  // Use the route's name if you added it
+                params: {
+                    email: form.value.email,
+                    type: form.value.type
+                }
+            });
 
-        const response = await authStore.login(form.value?.email, form.value?.password, form.value?.type, form.value.remember);
-        if (authStore.user) {
             form.value = {
                 email: '',
-                password: '',
                 type: '',
-                remember: false,
             }
-            router.push('/auth/home');
         }
-
-        console.log(response);
-    } catch (error) {
-        alert(error);
-    }
-    finally {
+    } finally {
         loading.value = false;
     }
 }
@@ -70,12 +60,12 @@ watch(() => form.value, () => {
                 </div>
                 <div class="p-6 w-full">
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-800">Welcome Back!</h1>
+                        <h1 class="text-2xl font-bold text-gray-800">Forgot Password?</h1>
                     </div>
                     <div class="w-full">
-                        <form class="w-full" @submit.prevent="login">
-                            <InputError class="mt-2" v-if="authStore.errors.email"
-                                :message="authStore.errors.email[0]" />
+                        <form class="w-full" @submit.prevent="forgot">
+                            <InputError class="mt-2" />
+
                             <div>
                                 <InputLabel for="email" value="Email" />
 
@@ -84,16 +74,6 @@ watch(() => form.value, () => {
 
                                 <InputError class="mt-2" v-if="authStore.errors.email"
                                     :message="authStore.errors.email[0]" />
-                            </div>
-                            <div class="mt-4 w-full">
-                                <InputLabel for="password" value="Password" />
-
-                                <input v-model="form.password" type="password" placeholder="Password"
-                                    class="input input-bordered w-full" required autofocus />
-
-
-                                <InputError class="mt-2" v-if="authStore.errors.password"
-                                    :message="authStore.errors.password[0]" />
                             </div>
                             <div class="mt-4 w-full">
 
@@ -109,31 +89,19 @@ watch(() => form.value, () => {
                                     <InputError class="mt-2" :message="authStore.errors.type" />
                                 </label>
                             </div>
-                            <div class="block mt-4">
-                                <label class="flex items-center">
-                                    <input v-model="form.remember" type="checkbox" class="checkbox" />
-                                    <span class="ms-2 text-sm text-gray-600">Remember me</span>
-                                </label>
-                            </div>
                             <div class="flex flex-col w-full items-center justify-end mt-4 gap-2">
                                 <button type="submit" :disabled="loading"
                                     class="w-full bg-white text-black text-lg text-center p-3 rounded-btn hover:bg-slate-200 transition">
-                                    Login
+                                    Submit
                                 </button>
                                 <a href="/"
                                     class="border-2 border-white text-white text-lg text-center p-3 rounded  transition w-full">Cancel</a>
-                                <a href="/forgot-password"
-                                    class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    Forgot your password?
-                                </a>
 
                             </div>
-                            <InputError class="mt-2" :message="authStore.errors.general" />
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </ion-page>
-
 </template>

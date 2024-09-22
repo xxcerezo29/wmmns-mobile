@@ -1,7 +1,7 @@
 <template>
     <ion-progress-bar v-if="loading" type="indeterminate" color="primary"></ion-progress-bar>
     <ion-menu :swipeGesture="swipe" content-id="main-content" side="start" menuId="first">
-       
+
         <ion-header>
             <ion-toolbar>
                 <ion-title>Menu</ion-title>
@@ -35,14 +35,16 @@ const loading = ref(false);
 const logout = async () => {
     loading.value = true
     try {
-        authStore.logout();
-        
-    }finally {
+        const response = await authStore.logout();
+        if (response === true) {
+            setTimeout(() => {
+                router.replace('/');
+            }, 100);
+        }
+
+    } finally {
         loading.value = false;
-        setTimeout(() => {
-            router.push('/login');
-        }, 100);
     }
-    
+
 };
 </script>

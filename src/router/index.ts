@@ -15,7 +15,31 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: "",
+        name: 'login',
         component: () => import("../views/Auth/Login.vue"),
+      },
+    ],
+  },
+  {
+    path: '/forgot-password',
+    component: () => import('../layouts/GuestLayout.vue'),
+    meta: { guest: true},
+    children: [
+      {
+        path: "",
+        component: () => import("../views/Auth/ForgotPassword.vue"),
+      },
+    ],
+  },
+  {
+    path: '/reset-password',
+    component: () => import('../layouts/GuestLayout.vue'),
+    meta: { guest: true},
+    children: [
+      {
+        path: ":email/:type",
+        name: 'reset-password',
+        component: () => import("../views/Auth/ResetPassword.vue"),
       },
     ],
   },

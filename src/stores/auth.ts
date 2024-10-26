@@ -89,7 +89,7 @@ export const useAuthStore = defineStore("auth", {
         url: import.meta.env.VITE_WMMNS_API_URL + "/api/forgot-password",
         headers: {
           Accept: "application/json",
-          "Content-Type": "multipart/form-data",
+          "Content-Type": 'application/json'
         },
         data: {
           type: type,
@@ -119,7 +119,7 @@ export const useAuthStore = defineStore("auth", {
         url: import.meta.env.VITE_WMMNS_API_URL + "/api/reset-password",
         headers: {
           Accept: "application/json",
-          "Content-Type": "multipart/form-data",
+          "Content-Type": 'application/json'
         },
         data: {
           type: type,

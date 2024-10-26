@@ -55,10 +55,22 @@ export const useAuthStore = defineStore("auth", {
         url: import.meta.env.VITE_WMMNS_API_URL + "/api/register",
         headers: {
           Accept: "application/json",
-          "Content-Type": "multipart/form-data",
-          
+          "Content-Type": 'application/json'
         },
-        data: request,
+        data: {
+          firstname: request.firstname,
+          middlename: request.middlename,
+          lastname: request.lastname,
+          line1: request.line1,
+          line2: request.line2,
+          barangay: request.barangay,
+          city: request.city,
+          province: request.province,
+          country: request.country,
+          email: request.email,
+          password: request.password,
+          password_confirmation : request.password_confirmation
+        },
       };
 
       const response = await CapacitorHttp.post(options);

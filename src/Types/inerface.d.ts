@@ -23,7 +23,7 @@ export interface Resident {
   province: string;
   country: string;
   email: string;
-  email_verified_at: string;
+  email_verified_at?: string;
 }
 
 export interface Schedule {

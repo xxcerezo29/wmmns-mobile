@@ -18,6 +18,80 @@ export const useAuthStore = defineStore("auth", {
     async getToken() {
       await api.get("/sanctum/csrf-cookie", { withCredentials: true });
     },
+    async requestVerification() {
+      const options = {
+        url:
+          import.meta.env.VITE_WMMNS_API_URL +
+          "/api/email/verification-notification",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.token}`,
+        },
+      };
+      try {
+        const response = await CapacitorHttp.post(options);
+        if (response.status === 200) {
+          toast(
+            "top",
+            response.data.message || "Verification email sent successfully."
+          );
+
+          return true;
+        } else {
+          toast(
+            "top",
+            response.data.message || "Error in sending verification email."
+          );
+
+          return false;
+        }
+      } catch (error: any) {
+        if (error.response) {
+          if (error.response.status === 429) {
+            toast(
+              "top",
+              "You have exceeded the maximum number of requests. Please try again later."
+            );
+          } else {
+            toast(
+              "top",
+              error.response.data.message || "Something went wrong."
+            );
+          }
+        } else {
+          toast("top", "Unable to contact the server. Please try again.");
+        }
+        return false;
+      }
+    },
+    async verifyEmail(otp: string) {
+      const options = {
+        url: import.meta.env.VITE_WMMNS_API_URL + "/api/verify-email",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.token}`,
+        },
+        data: { code: otp }, // Sending the OTP as the payload
+      };
+
+      try {
+        const response = await CapacitorHttp.post(options);
+        if (response.status === 200) {
+          toast("top", response.data.message || "Email verified successfully.");
+          return true;
+        } else {
+          toast("top", response.data.message || "Error verifying email.");
+          return false;
+        }
+      } catch (error: any) {
+        if (error.response) {
+          toast("top", error.response.data.message || "Verification failed.");
+        } else {
+          toast("top", "Unable to contact the server. Please try again.");
+        }
+        return false;
+      }
+    },
     async login(
       email: string,
       password: string,
@@ -55,7 +129,7 @@ export const useAuthStore = defineStore("auth", {
         url: import.meta.env.VITE_WMMNS_API_URL + "/api/register",
         headers: {
           Accept: "application/json",
-          "Content-Type": 'application/json'
+          "Content-Type": "application/json",
         },
         data: {
           firstname: request.firstname,
@@ -69,7 +143,7 @@ export const useAuthStore = defineStore("auth", {
           country: request.country,
           email: request.email,
           password: request.password,
-          password_confirmation : request.password_confirmation
+          password_confirmation: request.password_confirmation,
         },
       };
 
@@ -89,7 +163,7 @@ export const useAuthStore = defineStore("auth", {
         url: import.meta.env.VITE_WMMNS_API_URL + "/api/forgot-password",
         headers: {
           Accept: "application/json",
-          "Content-Type": 'application/json'
+          "Content-Type": "application/json",
         },
         data: {
           type: type,
@@ -119,7 +193,7 @@ export const useAuthStore = defineStore("auth", {
         url: import.meta.env.VITE_WMMNS_API_URL + "/api/reset-password",
         headers: {
           Accept: "application/json",
-          "Content-Type": 'application/json'
+          "Content-Type": "application/json",
         },
         data: {
           type: type,
@@ -146,9 +220,9 @@ export const useAuthStore = defineStore("auth", {
         url: import.meta.env.VITE_WMMNS_API_URL + "/api/logout",
         headers: {
           Accept: "application/json",
-          'Authorization': `Bearer ${this.token}`,
+          Authorization: `Bearer ${this.token}`,
         },
-        data: {}
+        data: {},
       };
 
       const response = await CapacitorHttp.post(options);
@@ -186,6 +260,9 @@ export const useAuthStore = defineStore("auth", {
         } catch (error) {
           this.logout();
         }
+      } else {
+        this.user = null;
+        this.token = "";
       }
     },
     clearErrors() {

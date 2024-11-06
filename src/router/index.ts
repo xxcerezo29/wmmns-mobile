@@ -5,7 +5,7 @@ import { RouteRecordRaw } from "vue-router";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    component: () => import('../views/WelcomePage.vue'),
+    component: () => import("../views/WelcomePage.vue"),
     meta: { guest: true },
   },
   {
@@ -15,15 +15,15 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: "",
-        name: 'login',
+        name: "login",
         component: () => import("../views/Auth/Login.vue"),
       },
     ],
   },
   {
-    path: '/forgot-password',
-    component: () => import('../layouts/GuestLayout.vue'),
-    meta: { guest: true},
+    path: "/forgot-password",
+    component: () => import("../layouts/GuestLayout.vue"),
+    meta: { guest: true },
     children: [
       {
         path: "",
@@ -32,13 +32,13 @@ const routes: Array<RouteRecordRaw> = [
     ],
   },
   {
-    path: '/reset-password',
-    component: () => import('../layouts/GuestLayout.vue'),
-    meta: { guest: true},
+    path: "/reset-password",
+    component: () => import("../layouts/GuestLayout.vue"),
+    meta: { guest: true },
     children: [
       {
         path: ":email/:type",
-        name: 'reset-password',
+        name: "reset-password",
         component: () => import("../views/Auth/ResetPassword.vue"),
       },
     ],
@@ -65,41 +65,45 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: "map",
-        component: () =>import('../views/MapPage.vue'),
+        component: () => import("../views/MapPage.vue"),
         meta: { requiresAuth: true },
       },
       {
-        path: 'profile',
-        component: () => import('../views/ProfilePage.vue'),
+        path: "profile",
+        component: () => import("../views/ProfilePage.vue"),
         meta: { requiresAuth: true },
       },
       {
-        path: 'complaints',
-        component: () => import('../views/ComplaintsPage.vue'),
+        path: "complaints",
+        component: () => import("../views/ComplaintsPage.vue"),
         meta: { requiresAuth: true },
       },
       {
-        path: 'complaints/view/:complaintId',
-        component: () => import('../views/ComplaintViewPage.vue'),
+        path: "complaints/view/:complaintId",
+        component: () => import("../views/ComplaintViewPage.vue"),
         meta: { requiresAuth: true },
       },
       {
-        path: 'complaints/file-a-compplaints',
-        component: () => import('../views/FileComplaintPage.vue'),
+        path: "complaints/file-a-compplaints",
+        component: () => import("../views/FileComplaintPage.vue"),
         meta: { requiresAuth: true },
       },
     ],
   },
   {
-    path: '/driver/:scheduleId',
-    component: () => import('../layouts/MapLayout.vue'),
+    path: "/driver/:scheduleId",
+    component: () => import("../layouts/MapLayout.vue"),
     children: [
       {
-        path: '',
-        component: () =>import('../views/DriverMapPage.vue'),
+        path: "",
+        component: () => import("../views/DriverMapPage.vue"),
         meta: { requiresAuth: true },
-      }
+      },
     ],
+  },
+  {
+    path: "/verify",
+    component: () => import("../views/Auth/VerifyEmail.vue"),
     meta: { requiresAuth: true },
   },
   {
@@ -121,12 +125,28 @@ router.beforeEach(async (to, from, next) => {
   }
 
   const isAuthenticated = !!authStore.user;
+  const isEmailVerified = !!authStore.user?.email_verified_at;
 
-  if(to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated){
-    next('/login');
-  }else if(to.matched.some(record=> record.meta.guest)&& isAuthenticated){
-    next('/auth/home');
-  }else{
+  // Handle routes requiring authentication
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (!isAuthenticated) {
+      next("/login");
+    } else if (!isEmailVerified && to.path !== "/verify") {
+      next("/verify");
+    } else {
+      next(); // Allow access to authenticated routes
+    }
+  }
+  // Handle guest routes
+  else if (to.matched.some((record) => record.meta.guest)) {
+    if (isAuthenticated && isEmailVerified) {
+      next("/auth/home"); // Redirect authenticated users with verified email to home
+    } else {
+      next(); // Allow access to guest routes like login
+    }
+  }
+  // Default case
+  else {
     next();
   }
 });

@@ -35,7 +35,7 @@ onMounted(()=> {
 </script>
 <template>
   <div>
-    <h2 class="text-lg sm:text-xl font-semibold mb-2 sm:mb-4 text-center">Step 2: User Credentials</h2>
+    <h2 class="text-lg sm:text-xl font-semibold mb-2 sm:mb-4 text-center">Step 2: Address Information</h2>
     <form class="space-y-4"> <!-- Increased space between elements for better visibility -->
       <div>
         <label for="line1" class="label">

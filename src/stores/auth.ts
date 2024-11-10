@@ -2,7 +2,7 @@ import api from "@/services/api";
 import { defineStore } from "pinia";
 import { FormData } from "./registration";
 import { Driver, Resident } from "@/Types/inerface";
-import { Capacitor, CapacitorHttp } from "@capacitor/core";
+import { CapacitorHttp } from "@capacitor/core";
 import { toast } from "@/function";
 
 type User = Driver | Resident;
@@ -226,9 +226,6 @@ export const useAuthStore = defineStore("auth", {
       };
 
       const response = await CapacitorHttp.post(options);
-
-      console.log(response);
-
       if (response.data.success === true) {
         this.user = null;
         this.token = "";

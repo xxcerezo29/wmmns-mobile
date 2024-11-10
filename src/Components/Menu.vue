@@ -40,6 +40,7 @@ const logout = async () => {
             setTimeout(() => {
                 router.replace('/');
             }, 100);
+            
         }
 
     } finally {

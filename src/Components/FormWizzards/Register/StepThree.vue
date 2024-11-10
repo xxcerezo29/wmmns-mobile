@@ -2,20 +2,32 @@
 import InputError from "@/Components/InputError.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRegistration } from "@/stores/registration";
-import { watch } from "vue";
+import { ref, watch } from "vue";
 
 const authStore = useAuthStore();
 const formStore = useRegistration();
+
+const emit = defineEmits(["updateFormData"]);
+
+const email = ref(formStore.formData.email);
+const password = ref(formStore.formData.password);
+const password_confirmation = ref(formStore.formData.password_confirmation);
 
 const validate = () => {
   const isValid =
     formStore.formData.email !== "" &&
     formStore.formData.password !== "" &&
     formStore.formData.password_confirmation !== "";
-  formStore.setNextEnabled(isValid);
+
+  emit("updateFormData", {
+    email: email.value,
+    password: password.value,
+    password_confirmation: password_confirmation.value,
+    isNextEnabled: isValid,
+  });
 };
 
-watch(() => formStore.formData, validate, { immediate: true, deep: true });
+watch(() => formStore.formData, validate, { immediate: true, deep: false });
 </script>
 <template>
   <div>
@@ -29,7 +41,7 @@ watch(() => formStore.formData, validate, { immediate: true, deep: true });
           <span class="label-text">Email:</span>
         </label>
         <input
-          v-model="formStore.formData.email"
+          v-model="email"
           type="email"
           id="email"
           class="input input-bordered w-full"
@@ -45,7 +57,7 @@ watch(() => formStore.formData, validate, { immediate: true, deep: true });
           <span class="label-text">Password:</span>
         </label>
         <input
-          v-model="formStore.formData.password"
+          v-model="password"
           type="password"
           id="password"
           class="input input-bordered w-full"
@@ -61,7 +73,7 @@ watch(() => formStore.formData, validate, { immediate: true, deep: true });
           <span class="label-text">Password Confirmation:</span>
         </label>
         <input
-          v-model="formStore.formData.password_confirmation"
+          v-model="password_confirmation"
           type="password"
           id="password"
           dir="ltr"

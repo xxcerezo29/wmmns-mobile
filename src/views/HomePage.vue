@@ -37,7 +37,7 @@
                     </div>
                   </div>
                   <div>
-                    <span>Truck: {{ schedule.plate_number }}</span>
+                    <span>Truck: {{ schedule.truck.plate_number }}</span>
                   </div>
                   <div>
                     <span>{{ formatTime(schedule.time) }}</span>

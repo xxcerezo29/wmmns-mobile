@@ -15,6 +15,10 @@ import {
 import { onMounted, ref } from "vue";
 import VueCal from "vue-cal";
 import "vue-cal/dist/vuecal.css";
+import Pusher, { Channel } from "pusher-js";
+
+let pusher: Pusher | null = null;
+let channel: Channel | null = null;
 
 const schedules = ref<
   Array<{
@@ -43,6 +47,20 @@ const handleEventClick = (event: any, e: any) => {
 };
 
 onMounted(async () => {
+  pusher = new Pusher("2b9e426ef902f27d56e7", {
+    cluster: "ap1",
+  });
+
+  channel = pusher.subscribe("schedule-page");
+
+  channel.bind("NewSchedule", async () => {
+    await fetchSchedule();
+  });
+
+  await fetchSchedule();
+});
+
+const fetchSchedule = async () => {
   try {
     loading.value = true;
 
@@ -64,7 +82,7 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
-});
+};
 </script>
 <template>
   <div class="min-h-screen flex flex-col gap-2 pt-4">
